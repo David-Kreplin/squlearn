@@ -1,0 +1,276 @@
+All X,Y data:
+(array([[0, 0, 0, 0, 0, 0],
+       [0, 0, 0, 0, 0, 1],
+       [0, 0, 0, 0, 1, 0],
+       [0, 0, 0, 0, 1, 1],
+       [0, 0, 0, 1, 0, 0],
+       [0, 0, 0, 1, 0, 1],
+       [0, 0, 0, 1, 1, 0],
+       [0, 0, 0, 1, 1, 1],
+       [0, 0, 1, 0, 0, 0],
+       [0, 0, 1, 0, 0, 1],
+       [0, 0, 1, 0, 1, 0],
+       [0, 0, 1, 0, 1, 1],
+       [0, 0, 1, 1, 0, 0],
+       [0, 0, 1, 1, 0, 1],
+       [0, 0, 1, 1, 1, 0],
+       [0, 0, 1, 1, 1, 1],
+       [0, 1, 0, 0, 0, 0],
+       [0, 1, 0, 0, 0, 1],
+       [0, 1, 0, 0, 1, 0],
+       [0, 1, 0, 0, 1, 1],
+       [0, 1, 0, 1, 0, 0],
+       [0, 1, 0, 1, 0, 1],
+       [0, 1, 0, 1, 1, 0],
+       [0, 1, 0, 1, 1, 1],
+       [0, 1, 1, 0, 0, 0],
+       [0, 1, 1, 0, 0, 1],
+       [0, 1, 1, 0, 1, 0],
+       [0, 1, 1, 0, 1, 1],
+       [0, 1, 1, 1, 0, 0],
+       [0, 1, 1, 1, 0, 1],
+       [0, 1, 1, 1, 1, 0],
+       [0, 1, 1, 1, 1, 1],
+       [1, 0, 0, 0, 0, 0],
+       [1, 0, 0, 0, 0, 1],
+       [1, 0, 0, 0, 1, 0],
+       [1, 0, 0, 0, 1, 1],
+       [1, 0, 0, 1, 0, 0],
+       [1, 0, 0, 1, 0, 1],
+       [1, 0, 0, 1, 1, 0],
+       [1, 0, 0, 1, 1, 1],
+       [1, 0, 1, 0, 0, 0],
+       [1, 0, 1, 0, 0, 1],
+       [1, 0, 1, 0, 1, 0],
+       [1, 0, 1, 0, 1, 1],
+       [1, 0, 1, 1, 0, 0],
+       [1, 0, 1, 1, 0, 1],
+       [1, 0, 1, 1, 1, 0],
+       [1, 0, 1, 1, 1, 1],
+       [1, 1, 0, 0, 0, 0],
+       [1, 1, 0, 0, 0, 1],
+       [1, 1, 0, 0, 1, 0],
+       [1, 1, 0, 0, 1, 1],
+       [1, 1, 0, 1, 0, 0],
+       [1, 1, 0, 1, 0, 1],
+       [1, 1, 0, 1, 1, 0],
+       [1, 1, 0, 1, 1, 1],
+       [1, 1, 1, 0, 0, 0],
+       [1, 1, 1, 0, 0, 1],
+       [1, 1, 1, 0, 1, 0],
+       [1, 1, 1, 0, 1, 1],
+       [1, 1, 1, 1, 0, 0],
+       [1, 1, 1, 1, 0, 1],
+       [1, 1, 1, 1, 1, 0],
+       [1, 1, 1, 1, 1, 1]]), array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1,
+       1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1,
+       1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      dtype=int64))
+Trainset:
+(array([[0, 1, 0, 0, 1, 1]]), array([1], dtype=int64))
+Prediction: (executing reg.predict(X[i]) in a for loop with i as index from 0 to 63)
+0.9986125123342583
+0.9986125123342577
+0.9986125123342584
+0.9986125123342586
+0.7525478656574718
+0.7509457400603983
+0.7533147396557373
+0.7536641137882252
+0.7694014901489057
+0.7694014901489066
+0.7694014901489059
+0.7694014901489064
+0.6316875503045722
+0.6309605362747921
+0.6318535819288997
+0.6320121212446848
+0.9986480195204355
+0.9986119295212352
+0.9986489626897921
+[0.99863859]
+0.7586888836204935
+0.7579182333583141
+0.7588894433901314
+0.7590422007471476
+0.7651316929268956
+0.765113543626252
+0.7651321672373578
+0.7651269484021271
+0.6332722406671153
+0.6329650073348776
+0.6331686253554338
+0.6332279304127548
+0.961372452580812
+0.9613514463320371
+0.9613730015542288
+0.9613669612029593
+0.736892822729138
+0.73590879247571
+0.737246954095951
+0.7374526366770479
+0.6780033499577403
+0.6780111072459187
+0.678003147230207
+0.6780053778400604
+0.5838102301064574
+0.5832216778831357
+0.5839152793759629
+0.5840469125723137
+0.9596031314524714
+0.9595655903594165
+0.9596041125444468
+0.9595933175952149
+0.738540938795833
+0.737949026409805
+0.7386231274643247
+0.738736292525048
+0.6724833690645887
+0.6724729905343672
+0.6724836402951756
+0.6724806559466197
+0.583684679531572
+0.5835407701451135
+0.5834804735075632
+0.5835074564951948
+#################################################################################
+ERROR in entry 20 (index 19) cause there is a list with an number in it, but it should only give a number without a list
+>>X[19]  
+[0 1 0 0 1 1]
+>>reg.predict(X[19]) 
+[0.99863859]
+
+but with reg.predict(X) there is no error output:
+>>reg.predict(X)
+array([0.99861251, 0.99861251, 0.99861251, 0.99861251, 0.75254787,
+       0.75094574, 0.75331474, 0.75366411, 0.76940149, 0.76940149,
+       0.76940149, 0.76940149, 0.63168755, 0.63096054, 0.63185358,
+       0.63201212, 0.99864802, 0.99861193, 0.99864896, 0.99863859,
+       0.75868888, 0.75791823, 0.75888944, 0.7590422 , 0.76513169,
+       0.76511354, 0.76513217, 0.76512695, 0.63327224, 0.63296501,
+       0.63316863, 0.63322793, 0.96137245, 0.96135145, 0.961373  ,
+       0.96136696, 0.73689282, 0.73590879, 0.73724695, 0.73745264,
+       0.67800335, 0.67801111, 0.67800315, 0.67800538, 0.58381023,
+       0.58322168, 0.58391528, 0.58404691, 0.95960313, 0.95956559,
+       0.95960411, 0.95959332, 0.73854094, 0.73794903, 0.73862313,
+       0.73873629, 0.67248337, 0.67247299, 0.67248364, 0.67248066,
+       0.58368468, 0.58354077, 0.58348047, 0.58350746])
+
+
+
+Setup:
+from squlearn.feature_map.qcnn_feature_map import qcnn_feature_map
+from squlearn.feature_map.qcnn_feature_map import prototype_routine
+from squlearn.util import Executor
+from qiskit import QuantumCircuit
+from qiskit.circuit import ParameterVector
+import numpy as np
+import itertools
+import random
+from squlearn.expectation_operator import SingleAmplitude
+from squlearn.qnn import QNN
+from squlearn.feature_map.layered_feature_map import LayeredFeatureMap
+from qiskit.primitives import Estimator
+from squlearn.qnn.training import regression
+from squlearn.optimizers import SLSQP
+from squlearn.qnn.loss import SquaredLoss
+from squlearn.qnn.qnnr import QNNRegressor
+
+def generate_data_all_combi(length):
+    """Creates a 2 dimensional numpy array with all combinations of zeros and ones.
+      It outputs this with there labels (0 if more zeros than ones, 1 else)"""
+    all_combi_list = list(itertools.product([0,1],repeat=length))
+    X_tuple_list = all_combi_list
+    X = np.array(X_tuple_list)  #converts list of tuples into a numpy array with dimension 2
+    Y = np.count_nonzero(X==0,axis=1) #counts the number of zeros in each sublist
+    for i in range(len(Y)):
+        zeros = Y[i]
+        if 2*zeros > length:
+            Y[i] = 0
+        else:
+            Y[i] = 1 
+    return X,Y
+
+def generate_train_data(all_combination_data,train_size):
+    """Generates from given all_combination data a train set with there labels."""
+    X,Y = all_combination_data[0],all_combination_data[1]
+    data_size = Y.size
+    index_list = range(data_size)
+    index_choice = random.sample(index_list, train_size)
+    X_train = np.array([X[i] for i in index_choice])
+    Y_train = np.array([Y[i] for i in index_choice])
+    return X_train,Y_train
+
+qubits = 6
+train_set_size = 1
+#-------------------------------------------------------------------------------------------------------------------------------------------
+# QCNN feature map for training:
+"""
+We apply the following gates:
+convolution gate
+
+"""
+qcnn_train = qcnn_feature_map(qubits)
+x = ParameterVector("x", 3)
+gate_qc = QuantumCircuit(3)
+gate_qc.crx(x[0],0,1)
+gate_qc.crx(x[2],0,2)
+gate_qc.crx(x[1],1,2)
+y = ParameterVector("y", 2)
+gate_conv2 = QuantumCircuit(2)
+gate_conv2.crz(y[0],0,1)
+gate_conv2.crz(y[1],1,0)
+pooling_gate1 = QuantumCircuit(2)
+pooling_gate1.cx(0,1)
+# Fully for 2 qubits:
+a = ParameterVector("a",2)
+fully_gate = QuantumCircuit(2)
+fully_gate.rx(a[0],0)
+fully_gate.rx(a[1],1)
+qcnn_train.convolution(gate_qc, entangled=False,operator="U",var_param = False)
+qcnn_train.convolution(gate_conv2, entangled=False,operator="V",var_param = False)
+qcnn_train.pooling(pooling_gate1,operator="P")
+qcnn_train.convolution(gate_qc, entangled=False,operator="U",var_param = False)
+qcnn_train.convolution(gate_conv2, entangled=False,operator="V",var_param = False)
+qcnn_train.pooling(pooling_gate1,operator="P")
+qcnn_train.fully_connected(fully_gate)
+param_vec_for_qcnn = ParameterVector("p", qcnn_train.num_parameters)
+qcnn_train.get_circuit([],param_vec_for_qcnn)
+#-------------------------------------------------------------------------------------------------------------------------------------------
+
+# Measure |0> state in qubit 3
+operator = SingleAmplitude(qubits,3)
+
+all_combination_data = generate_data_all_combi(qubits)
+X,Y = generate_train_data(all_combination_data,train_set_size)
+
+encode = LayeredFeatureMap.from_string("Rx(x)",num_qubits=qubits,num_features=qubits)
+qcnn_pqc = encode + qcnn_train
+qcnn_pqc.draw()
+
+np.random.seed(13) 
+param_ini = np.random.rand(qcnn_pqc.num_parameters)
+param_op_ini = np.random.rand(operator.num_parameters)
+reg = QNNRegressor(qcnn_pqc,
+                   operator,
+                   Executor(Estimator()),
+                   SquaredLoss,
+                   SLSQP(),
+                   param_ini,
+                   param_op_ini,
+                   opt_param_op=False,
+                   batch_size=10,
+                   epochs=30,
+                   shuffle=True,
+                   )
+
+reg.fit(X, Y)
+
+X_test = all_combination_data[0]
+for i in range(all_combination_data[1].size):
+    print(reg.predict(X_test[i]))
+
+print(reg.predict(X_test[19]))
+print(X_test[19])
+
+reg.predict(X_test)
