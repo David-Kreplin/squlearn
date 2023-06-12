@@ -43,6 +43,7 @@ class qcnn_feature_map(FeatureMapBase):
         self.number_of_qubits = number_of_qubits
         self.operation_list = [] # operation list, which contains every used convolution and pooling and also fully_connected operation
         self.parameter_counter = 0  # counts the number of parameters used
+        self.controlled_qubits = number_of_qubits # stores, how many qubits can be controlled yet
 
     def _add_operation(self, operation:operation):
         """adds an operation to the operation_list and increases the parameter counter"""
@@ -50,17 +51,20 @@ class qcnn_feature_map(FeatureMapBase):
         if operation.var_param:
             gate_qubits = operation.QC.num_qubits # stores, how many qubits are addressed by the gate
             if operation.layer == "c":
-                if operation.entangled:
-                    gate_appearance = int(self.number_of_qubits/gate_qubits) + int((self.number_of_qubits-1)/gate_qubits) # stores, how often a gate is applied to the circuit
+                if operation.entangled: # TODO: controlled qubits statt number-of_qubits
+                    gate_appearance = int(self.controlled_qubits/gate_qubits) + int((self.controlled_qubits-1)/gate_qubits) # stores, how often a gate is applied to the circuit
                 else:
-                    gate_appearance = int(self.number_of_qubits/gate_qubits)
+                    gate_appearance = int(self.controlled_qubits/gate_qubits)
                 self.parameter_counter += gate_appearance * len(gate_params)
             elif operation.layer == "p":
-                gate_appearance = int(self.number_of_qubits/gate_qubits)
+                gate_appearance = int(self.controlled_qubits/gate_qubits)
                 self.parameter_counter += gate_appearance * len(gate_params)
+                self.controlled_qubits = int(self.controlled_qubits/2)
             else:
                 self.parameter_counter += len(gate_params)
         else:
+            if operation.layer == "p":
+                self.controlled_qubits = int(self.controlled_qubits/2)
             self.parameter_counter += len(gate_params) #TODO: muss geändert werden nach der var_param- Implementierung
         self.operation_list.append(operation)
 
@@ -104,33 +108,6 @@ class qcnn_feature_map(FeatureMapBase):
                 raise IndexError("There are to many pooling layers, because there are no qubits left.")
             gate_qubits = operation.QC.num_qubits # with that, the algorithm knows, how many qubits are addressed by the gate
             gate_params = operation.QC.parameters # stores, which parameter vectors are used by the gate
-
-            """# Old version
-            if operation.var_param: #TODO funktioniert noch net so, wie es sollte
-                if operation.entangled:
-                    pass #TODO: hier werden die verschränkt, also werden mehr params angewandt
-                else:
-                    gate_appearance = int(len(controlled_qubits)/gate_qubits) # stores, how often a gate is applied to the circuit
-                    param_appearance = gate_appearance * len(gate_params) # stores, how many parameters are used in this operation
-                    #repeating_params = [i for x in range(gate_appearance) for i in range(len(gate_params))] # list of parameters in the gate, which repeats them as often as they are used
-                    #operation_param = ParameterVector("z",param_appearance) # buffer param vector, which is used to map the global param vector into the gates
-
-                map_dict_list = [{gate_params[i]:parameters[j+global_param_counter] for i,j in zip(range(len(gate_params)),range(k*len(gate_params),(k+1)*len(gate_params)))} for k in range(gate_appearance)]
-                print(map_dict_list)
-                #map_dict = {operation_param[i]:parameters[i+global_param_counter] for i in range(param_appearance)}
-                #print("map_dict",map_dict)
-
-
-                #print("repeating_params",repeating_params)
-                #print("maplist:",{gate_params[i]:j+global_param_counter for i,j in zip(repeating_params,range(param_appearance))})
-                #map_dict = {gate_params[i]:parameters[j+global_param_counter] for i,j in zip(repeating_params,range(param_appearance))} # dictonary, which maps the local parameters (of the gate) to the global parameters
-                #print("map_dict",map_dict)  # TODO: theoretisch funktioniert es aber das problem iust, dass es sich um ein dictonary handelt, und da sind einträge eindeutig, (vielleicht lieber liste verwenden?)
-                global_param_counter += param_appearance
-            else:#TODO
-                map_dict = {gate_params[i]:parameters[i+global_param_counter] for i in range(len(gate_params))}
-                print("map_dict", map_dict)
-                global_param_counter += len(gate_params)
-            """
             if operation.layer == "c":
                 #gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}_{}".format(operation.operator,label_name_dict["c"])) #TODO:
                 if operation.entangled:
@@ -273,7 +250,9 @@ class qcnn_feature_map(FeatureMapBase):
         return controlled_qubits
 
 
-    def convolution(self, QC, entangled : bool = False, operator = -1, var_param : bool = False): #TODO: operator in label umbenennen, var_param einführen, (wahrheitswert der bei true die parameter variiert)
+    def convolution(self, QC, entangled : bool = False, operator = -1, var_param : bool = False): #TODO: operator in label umbenennen; 
+        # Zielqubit für gate? also z.b. Zielqubit für ein Gate der größe 3 ist 2, also wird 2,3 und 4 angesteuert, 
+        # auf die qubits danach wird dann das Gate auch angewandt (so lange wie es mit der Anzahl der Qubits Sinn ergibt), aber sollen auch Gates davor angewandt werden? (nein oder?)
         """if entangled is true, it applies a nearest neighbour entangling
         Args:
             QC: The quantum circuit, which will be applied on every qubit modulo qubits of this circuit, 
@@ -287,7 +266,6 @@ class qcnn_feature_map(FeatureMapBase):
         self._add_operation(operation("c",QC,entangled,operator,var_param))
 
     def pooling(self, QC, operator = -1, var_param : bool = False): #TODO: soll mit mehr als 2 qubits funktionieren, eingabe: welche qubits werden angesteuert, und welcher qubit ist der zielqubit
-        # TODO: soll auch verschiedene Parameter unterstützen, bool: z.b. (...QC, var_param = False, operator = -1)
         """
         QC must be an entangling layer, which entangles two qubits (for example crx).
         Default: it entangles qubit i with qubit i+1 so qubit i gets out of the controlled qubits list in get circuit and i+1 stays

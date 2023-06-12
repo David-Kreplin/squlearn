@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "//train_qcnn_2d-3d-var_param-gates_64_data_points.py", line 109, in <module>
+    reg = QNNRegressor(qcnn_pqc,
+  File "/usr/local/lib/python3.10/dist-packages/squlearn/qnn/qnnr.py", line 58, in __init__
+    super().__init__(
+  File "/usr/local/lib/python3.10/dist-packages/squlearn/qnn/base_qnn.py", line 97, in __init__
+    self._qnn = QNN(self.pqc, self.operator, executor)
+  File "/usr/local/lib/python3.10/dist-packages/squlearn/qnn/qnn.py", line 269, in __init__
+    self.pqc_derivatives = FeatureMapDerivatives(self.pqc, opflow_caching)
+  File "/usr/local/lib/python3.10/dist-packages/squlearn/feature_map/feature_map_derivatives.py", line 31, in __init__
+    circuit = feature_map.get_circuit(self.x, self.p)
+  File "/usr/local/lib/python3.10/dist-packages/squlearn/feature_map/transpiled_feature_map.py", line 95, in get_circuit
+    return self._transpiled_circuit.assign_parameters(exchange_both)
+  File "/usr/local/lib/python3.10/dist-packages/qiskit/circuit/quantumcircuit.py", line 2720, in assign_parameters
+    raise CircuitError(
+qiskit.circuit.exceptions.CircuitError: 'Cannot bind parameters (p[16], p[17], p[18], p[19], p[20]) not present in the circuit.'
