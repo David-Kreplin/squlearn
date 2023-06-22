@@ -44,7 +44,7 @@ def generate_train_data(all_combination_data,train_size):
 
 
 qubits = 7
-train_set_size = 1
+train_set_size = 64
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # QCNN feature map with no controlled rotation in convolution layer but with cx for entangling, fully with crz and rx rotations.

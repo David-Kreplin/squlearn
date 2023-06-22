@@ -44,7 +44,7 @@ def generate_train_data(all_combination_data,train_size):
 
 
 qubits = 7
-train_set_size = 1
+train_set_size = 64
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # qcnn with 7 qubits
