@@ -59,12 +59,12 @@ class qcnn_feature_map(FeatureMapBase):
             elif operation.layer == "p":
                 gate_appearance = int(self.controlled_qubits/gate_qubits)
                 self.parameter_counter += gate_appearance * len(gate_params)
-                self.controlled_qubits = int(self.controlled_qubits/2)
+                self.controlled_qubits = int((self.controlled_qubits+1)/2) # the number of controlled qubits after one pooling is int((n+1)/2); Examples: 8 qubits, after pooling: 4; 7 qubits, after pooling: 4
             else:
                 self.parameter_counter += len(gate_params)
         else:
             if operation.layer == "p":
-                self.controlled_qubits = int(self.controlled_qubits/2)
+                self.controlled_qubits = int((self.controlled_qubits+1)/2) # the number of controlled qubits after one pooling is int((n+1)/2); Examples: 8 qubits, after pooling: 4; 7 qubits, after pooling: 4
             self.parameter_counter += len(gate_params) #TODO: muss geändert werden nach der var_param- Implementierung
         self.operation_list.append(operation)
 
