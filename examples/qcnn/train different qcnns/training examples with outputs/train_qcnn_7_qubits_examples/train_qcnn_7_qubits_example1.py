@@ -7,7 +7,7 @@ from qiskit.circuit import ParameterVector
 import numpy as np
 import itertools
 import random
-from squlearn.expectation_operator import SingleAmplitude
+from squlearn.expectation_operator import SingleProbability
 from squlearn.qnn import QNN
 from squlearn.feature_map.layered_feature_map import LayeredFeatureMap
 from qiskit.primitives import Estimator
@@ -44,10 +44,10 @@ def generate_train_data(all_combination_data,train_size):
 
 
 qubits = 7
-train_set_size = 64
+train_set_size = 1
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
-# qcnn with 7 qubits, in convolution: rotations and entangling with cx, pooling with cy, fully with crz and rx rotations.
+# QCNN feature map with no controlled rotation in convolution layer but with cx for entangling, fully with crz and rx rotations.
 qcnn_train = qcnn_feature_map(qubits)
 
 x = ParameterVector("x",3)
@@ -75,11 +75,11 @@ qcnn_train.pooling(pool_gate)
 qcnn_train.fully_connected(fully_gate)
 
 param_vec_for_qcnn = ParameterVector("p", qcnn_train.num_parameters)
-qcnn_train.get_circuit([],param_vec_for_qcnn).decompose().draw()
+qcnn_train.get_circuit([],param_vec_for_qcnn)
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 # Measure |0> state in qubit 3
-operator = SingleAmplitude(qubits,3)
+operator = SingleProbability(qubits,3)
 
 all_combination_data = generate_data_all_combi(qubits)
 X,Y = generate_train_data(all_combination_data,train_set_size)
@@ -118,5 +118,5 @@ print("ref",Y_test)
 print("Score:",reg.score(X_test,Y_test))
 
 
-pickle.dump( reg , open( "/data/model_train_qcnn_different_rotations_variation_in_entangling_64_data_points.p", "wb" ) )
+#pickle.dump( reg , open( "/data/train_qcnn_7_qubits_example1.p", "wb" ) ) #TODO: hab da keinen Zugriff darauf David, was macht überhaupt dese Zeile?
 
