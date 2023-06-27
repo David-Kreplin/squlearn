@@ -13,6 +13,7 @@ Here comes some description of the sQUlearn package and the documentation.
    :caption: Contents:
 
    tutorials/install
+   modules/classes
    tutorials/use_executor
    tutorials/pqk
    tutorials/operators
