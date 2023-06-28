@@ -21,7 +21,7 @@ Here comes some description of the sQUlearn package and the documentation.
 
 Indices and tables
 ==================
-API References <doc>
+* :ref:`api_reference`
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`

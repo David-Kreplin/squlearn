@@ -1,3 +1,7 @@
+# automatically generated documentation rst files
+docs/modules/generated/*
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,9 +1,8 @@
 :mod:`{{module}}`.{{objname}}
-{{ underline }}====================
+{{ underline }}==============
 
 .. currentmodule:: {{ module }}
 
-.. autofunction:: {{ objname }}
+.. autoclass:: {{ objname }}
 
 .. include:: {{module}}.{{objname}}.examples
-
