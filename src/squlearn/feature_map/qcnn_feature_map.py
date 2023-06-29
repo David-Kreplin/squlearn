@@ -35,9 +35,29 @@ class operation():
         self.entangled = entangled
         # only necessary for pooling layers:
         self.target_qubit = target_qubit
-        self.incoming_qubits = []
-        self.expiring_qubits = []
 
+
+"""
+class convolution(operation):
+    def __init__(self, layer: str, QC: QuantumCircuit, entangled: bool, operator, var_param, target_qubit):
+        super().__init__(layer, QC, entangled, operator, var_param, target_qubit)
+        self.incoming_qubits = [] #TODO
+        self.expiring_qubits = self.incoming_qubits
+    
+class fully_connected(operation):
+    def __init__(self, layer: str, QC: QuantumCircuit, entangled: bool, operator, var_param, target_qubit):
+        super().__init__(layer, QC, entangled, operator, var_param, target_qubit)
+        self.incoming_qubits = []
+        self.expiring_qubits = self.incoming_qubits
+
+class pooling(operation):
+    def __init__(self, layer: str, QC: QuantumCircuit, entangled: bool, operator, var_param, target_qubit):
+        super().__init__(layer, QC, entangled, operator, var_param, target_qubit)
+        self.incoming_qubits = [] #TODO                             #example1: list with elements: [1,2,3,4]
+        self.expiring_qubits =  self.incoming_qubits[1::2]          #after pooling: [2,4]
+        if len(self.incoming_qubits)%2==1:                          #example2: list with elements: [1,2,3,4,5]
+            self.expiring_qubits.append(self.incoming_qubits[-1])   #after pooling: [2,4,5]
+"""
 
 class qcnn_feature_map(FeatureMapBase):
 
@@ -46,6 +66,43 @@ class qcnn_feature_map(FeatureMapBase):
         self.operation_list = [] # operation list, which contains every used convolution and pooling and also fully_connected operation
         self.parameter_counter = 0  # counts the number of parameters used
         self.controlled_qubits = number_of_qubits # stores, how many qubits can be controlled yet
+
+
+    def get_num_params(self):
+        """
+        if anzahl der qubits ist vorgegeben:
+            alte Berechnung, ergibt das überhaupt sinn? denn add operation und getnumparams sind völlig verschiedene Methoden
+        else:
+        """
+        num_qubits = 0
+        for operation in reversed(self.operation_list):
+            gate_qubits = operation.QC.num_qubits
+            gate_params = operation.QC.parameters
+            if operation.layer == "f":
+                self.parameter_counter = len(gate_params)
+                num_qubits = gate_qubits
+            elif operation.layer == "c":
+                if operation.target_qubit == None:
+                    if operation.var_param:
+                        if operation.entangled:
+                            gate_appearance = int(num_qubits/gate_qubits) + int(num_qubits/gate_qubits)
+                        else:
+                            gate_appearance = int(num_qubits/gate_qubits)
+                        self.parameter_counter += gate_appearance*len(gate_params)
+                    else:
+                        self.parameter_counter += len(gate_params)
+                else: # TODO: option einer Liste vielleicht weglassen, da var_param und entangled an der Stelle sowieso keine Bedeutung haben
+                    self.parameter_counter == len(gate_params)
+            elif operation.layer == "p":
+                num_qubits = 2*num_qubits
+                gate_appearance = int(num_qubits/gate_qubits)
+                self.parameter_counter += gate_appearance*len(gate_params)
+            else:
+                raise NameError("Unknown operation layer.")
+        print("hier")
+        print(self.parameter_counter)
+        return self.parameter_counter
+                
 
     def _add_operation(self, operation:operation):
         """adds an operation to the operation_list and increases the parameter counter"""
@@ -195,7 +252,7 @@ class qcnn_feature_map(FeatureMapBase):
                                 for k in range(i,i+gate_qubits):
                                     gate_on_qubits.append(controlled_qubits[k])
                                 QC.append(gate, gate_on_qubits)
-                else:
+                else: # TODO: soll noch mit individueller Liste möglich sein
                     param_appearance = len(gate_params)
                     map_dict = {gate_params[i]:parameters[i+global_param_counter] for i in range(param_appearance)}
                     global_param_counter += param_appearance
@@ -290,7 +347,7 @@ class qcnn_feature_map(FeatureMapBase):
         self._add_operation(operation("c",QC,entangled,operator,var_param,target_qubit))
 
     def pooling(self, QC, operator = -1, var_param : bool = False, target_qubit: Union[int,list,None] = None): #TODO: soll mit mehr als 2 qubits funktionieren, eingabe: welche qubits werden angesteuert, und welcher qubit ist der zielqubit, wie bei convolution mit liste
-        # TOOD: Anzahl der Qubits, die angesteuert werden können soll n sein (und nur ein qubit soll danach bleiben) (nicht praxisrelevant)
+        # TOOD: Anzahl der Qubits, die angesteuert werden können soll n sein (und nur ein qubit soll danach bleiben) (nicht praxisrelevant) #TODO: pooling nur so wie in paint: also keine Extrawürschte und keine Listen
         """
         QC must be an entangling layer, which entangles two qubits (for example crx).
         Default: it entangles qubit i with qubit i+1 so qubit i gets out of the controlled qubits list in get circuit and i+1 stays
