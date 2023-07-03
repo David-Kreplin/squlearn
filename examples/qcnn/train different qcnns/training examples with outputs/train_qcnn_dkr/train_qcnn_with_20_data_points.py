@@ -1,5 +1,4 @@
 from squlearn.feature_map.qcnn_feature_map import qcnn_feature_map
-from squlearn.feature_map.qcnn_feature_map import prototype_routine
 import dill as pickle
 from squlearn.util import Executor
 from qiskit import QuantumCircuit
