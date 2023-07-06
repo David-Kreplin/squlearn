@@ -99,41 +99,51 @@ class qcnn_feature_map(FeatureMapBase):
                 self.parameter_counter += gate_appearance*len(gate_params)
             else:
                 raise NameError("Unknown operation layer.")
-        print("hier")
-        print(self.parameter_counter)
         return self.parameter_counter
                 
 
     def _add_operation(self, operation:operation):
         """adds an operation to the operation_list and increases the parameter counter"""
-        if operation.target_qubit == None:
+        gate_qubits = operation.QC.num_qubits # stores, how many qubits are addressed by the gate #TODO: gate_size vielleicht besserer Name?
+        if gate_qubits > self.controlled_qubits:
+            if operation.layer == "c":
+                print("Warning on convolutional layer: The quantum circuit input controls too many qubits:",gate_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
+            elif operation.layer == "p":
+                print("Warning on pooling layer: The quantum circuit input controls too many qubits:",gate_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
+            else:
+                print("Warning on fully connected layer: The quantum circuit input controls too many qubits:",gate_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
+        else:
             gate_params = operation.QC.parameters # stores, which parameter vectors are used by the gate
             if operation.var_param: #TODO: überprüfen, ob bei zu großer Größe des Gates trotzdem die Parameter hochgezählt werden
-                gate_qubits = operation.QC.num_qubits # stores, how many qubits are addressed by the gate
                 if operation.layer == "c":
-                    if operation.entangled: # TODO: controlled qubits statt number-of_qubits
-                        gate_appearance = int(self.controlled_qubits/gate_qubits) + int((self.controlled_qubits-1)/gate_qubits) # stores, how often a gate is applied to the circuit
+                    if operation.target_qubit == None:
+                        self.parameter_counter += len(gate_params)
                     else:
-                        gate_appearance = int(self.controlled_qubits/gate_qubits)
-                    self.parameter_counter += gate_appearance * len(gate_params)
+                        if operation.entangled: 
+                            gate_appearance = int(self.controlled_qubits/gate_qubits) + int((self.controlled_qubits-1)/gate_qubits) # stores, how often a gate is applied to the circuit
+                        else:
+                            gate_appearance = int(self.controlled_qubits/gate_qubits)
+                        self.parameter_counter += gate_appearance * len(gate_params)
                 elif operation.layer == "p":
+                    qubits_untouched = self.controlled_qubits%gate_qubits
                     gate_appearance = int(self.controlled_qubits/gate_qubits)
-                    self.parameter_counter += gate_appearance * len(gate_params)
-                    self.controlled_qubits = int((self.controlled_qubits+1)/2) # the number of controlled qubits after one pooling is int((n+1)/2); Examples: 8 qubits, after pooling: 4; 7 qubits, after pooling: 4
+                    self.controlled_qubits = gate_appearance + qubits_untouched
+                    self.parameter_counter = gate_appearance*len(gate_params)
+
+                # # ALT: funktioniert nur mit 2 qubits-Gates
+                # elif operation.layer == "p":
+                #     gate_appearance = int(self.controlled_qubits/gate_qubits)
+                #     self.parameter_counter += gate_appearance * len(gate_params)
+                #     self.controlled_qubits = int((self.controlled_qubits+1)/2) # the number of controlled qubits after one pooling is int((n+1)/2); Examples: 8 qubits, after pooling: 4; 7 qubits, after pooling: 4
                 else:
                     self.parameter_counter += len(gate_params)
             else:
                 if operation.layer == "p": # TODO: Zähler muss man ändern, wenn man zb. ein pooling layer zu viel hat, soll es trotzdem nicht hochzählen, und auch so stimmt es noch nicht ganz
-                    self.controlled_qubits = int((self.controlled_qubits+1)/2) # the number of controlled qubits after one pooling is int((n+1)/2); Examples: 8 qubits, after pooling: 4; 7 qubits, after pooling: 4
+                    qubits_untouched = self.controlled_qubits%gate_qubits
+                    gate_appearance = int(self.controlled_qubits/gate_qubits)
+                    self.controlled_qubits = gate_appearance + qubits_untouched
                 self.parameter_counter += len(gate_params)
-            
-        else:
-            gate_params = operation.QC.parameters
-            if operation.layer == "c":
-                self.parameter_counter += len(gate_params)
-            else:
-                pass #TODO: vorsicht target param könnte sich in pooling je nachdem stark von convolution unterscheiden
-        self.operation_list.append(operation)
+            self.operation_list.append(operation)
 
     @property
     def num_qubits(self) -> int:
@@ -279,7 +289,6 @@ class qcnn_feature_map(FeatureMapBase):
                     print("Warning: This pooling operation will not be executed, because there are not enough qubits left.")
                 else:
                     if operation.target_qubit == None:
-                        print("hier")
                         if operation.var_param:
                             gate_appearance = int(len(controlled_qubits)/gate_qubits) # stores, how often a gate is applied to the circuit
                             param_appearance = gate_appearance * len(gate_params) # stores, how many parameters are used in this operation
@@ -297,17 +306,23 @@ class qcnn_feature_map(FeatureMapBase):
                                 QC.append(gate, [i,j])
                                 new_controlled_qubits.append(j)
                             """
-                            last_qubit = 0 # the last qubit, which is controlled by the lowest gate
-                            for i,j in zip(controlled_qubits[0::gate_qubits], controlled_qubits[gate_qubits::gate_qubits]):
+                            # last_qubit = 0 # the last qubit, which is controlled by the lowest gate
+                            # for i,j in zip(controlled_qubits[0::gate_qubits], controlled_qubits[gate_qubits::gate_qubits]):
+                            #     map_dict = map_dict_list[map_iter]
+                            #     map_iter += 1
+                            #     gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}_{}".format(operation.operator,label_name_dict["p"]))
+                            #     QC.append(gate, [x for x in range(i,j+1)])
+                            #     new_controlled_qubits.append(j)
+                            #     last_qubit = j
+                            last_qubit = 0
+                            for i,j in zip(range(len(controlled_qubits))[0::gate_qubits], controlled_qubits[gate_qubits-1::gate_qubits]):
                                 map_dict = map_dict_list[map_iter]
                                 map_iter += 1
                                 gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}_{}".format(operation.operator,label_name_dict["p"]))
-                                QC.append(gate, [x for x in range(i,j+1)])
-                                new_controlled_qubits.append(j)
+                                QC.append(gate, controlled_qubits[i:i+gate_qubits])
+                                new_controlled_qubits.append(controlled_qubits[i])
                                 last_qubit = j
                         else:
-                            print("hier")
-                            print(controlled_qubits)
                             map_dict = {gate_params[i]:parameters[i+global_param_counter] for i in range(len(gate_params))}
                             global_param_counter += len(gate_params)
                             gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}_{}".format(operation.operator,label_name_dict["p"]))
@@ -341,7 +356,6 @@ class qcnn_feature_map(FeatureMapBase):
                         for i in range(last_qubit+1, self.number_of_qubits):
                             new_controlled_qubits.append(i)
                         controlled_qubits = new_controlled_qubits
-                        print(controlled_qubits)
                         operator_number = label_name_dict["p"]
                         label_name_dict.update({"p":operator_number+1})
                     else: # operation.target_qubit is an integer, so the user chose the remaining target qubit                    
@@ -433,8 +447,8 @@ class qcnn_feature_map(FeatureMapBase):
             entangled: if true, it applies the QC on every qubit modulo qubits of this circuit beginning at 0 and it applies the QC on every qubit beginning at 1
             operator: name of the layer
         """
-        if QC.num_qubits > len(self.get_qubits_left()):
-            print("Warning on convolutional layer: The quantum circuit input controls too many qubits:",QC.num_qubits,"qubits on input vs.",len(self.get_qubits_left()),"qubits on the actual circuit.")
+        #if QC.num_qubits > len(self.get_qubits_left()): #TODO: veraltet, ist jetzt in addoperation eingebaut
+        #    print("Warning on convolutional layer: The quantum circuit input controls too many qubits:",QC.num_qubits,"qubits on input vs.",len(self.get_qubits_left()),"qubits on the actual circuit.")
         self._add_operation(operation("c",QC,entangled,operator,var_param,target_qubit))
 
     def pooling(self, QC, operator = -1, var_param : bool = False, target_qubit: Union[int,None] = None): #TODO: soll mit mehr als 2 qubits funktionieren, eingabe: welche qubits werden angesteuert, und welcher qubit ist der zielqubit, wie bei convolution mit liste
