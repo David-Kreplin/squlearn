@@ -67,12 +67,13 @@ class pooling(operation):
 class qcnn_feature_map(FeatureMapBase):
 
     def __init__(self, num_qubits: Union[int,None] = None): #TODO: Fehler in Vererbung in num_qubits vermutlich
-        self.num_qubits = num_qubits
+        self._num_qubits = num_qubits
         print("hier")
         self.operation_list = [] # operation list, which contains every used convolution and pooling and also fully_connected operation
         self.parameter_counter = 0  # counts the number of parameters used, if num_qubits is an integer
         #self.param_reversed_counter = 0 # counts the number of parameters used, when number_of _qubits is not given
         self.controlled_qubits = num_qubits # stores, how many qubits can be controlled yet
+        self.fully_connected_layer = False
 
 
     def get_num_params(self):
@@ -113,7 +114,13 @@ class qcnn_feature_map(FeatureMapBase):
 
     def _add_operation(self, operation:operation):
         """adds an operation to the operation_list and increases the parameter counter"""
-        # TODO if self.num_qubit == None: (und nicht vergessen einen Fehler zu schmeißen, wenn nach fully connected noch was kommt)
+        # TODO if self.num_qubit == None: -> wird das überhaupt noch benötigt? weil so oder so soll er einen Fehler bei zwei fullys schmeißen?
+        if operation.layer == "f":
+            if self.fully_connected_layer:
+                raise TypeError("There must be at most one fully connected layer.")
+            else:
+                self.fully_connected_layer = True
+
         gate_qubits = operation.QC.num_qubits # stores, how many qubits are addressed by the gate #TODO: gate_size vielleicht besserer Name?
         if gate_qubits > self.controlled_qubits:
             if operation.layer == "c":
@@ -514,7 +521,9 @@ class qcnn_feature_map(FeatureMapBase):
         return None #TODO
     
     def get_qubits_left(self):
-        """ Returns which qubits the user can control yet. """
+        """ Returns which qubits the user can control yet. Only possible, if num_qubits exists. """
+        if self.num_qubits == None:
+            raise TypeError("num_qubits doesn't exist, so it's not possible to calculate the qubits left.")
         controlled_qubits = [i for i in range(self.num_qubits)]
         for operation in self.operation_list:
             operation_qubits = operation.QC.num_qubits
