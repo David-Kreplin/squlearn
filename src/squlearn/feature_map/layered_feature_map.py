@@ -55,6 +55,7 @@ class VariableGroup:
     def increase_used_number_of_variables(self, number_of_used_variables: int):
         """Increases total number of variables , if size not given
         (this is important for initializing the parameter vectors of qiskit with get_number_of_variables)
+        Note that it's possible to substract numbers (with negative integers) too.
         """
         if self.size == None:
             self.total_variables_used += number_of_used_variables
@@ -68,7 +69,6 @@ class VariableGroup:
         """Sets the index to zero"""
         self.index = 0
 
-
 class _operation:
     """
     parent class for a quantum operation. Each gate layer stands for one operation.
@@ -79,11 +79,13 @@ class _operation:
         Attributes:
             num_qubits: The number of all qubits
             variablegroup_tuple: A tuple with every variable group used in this operation
+            ent_strategy: the entangling strategy: if None, than the program knows, that this is not an entangling layer
             map: A default map, that is used, if the operation has exactly 2 variable groups and no given map (by user)
             default_map: A boolean, that checks, if the user initializes his own map
         """
         self.num_qubits = num_qubits
         self.variablegroup_tuple = variablegroup_tuple
+        self.ent_strategy = None 
         if map == None:
             # Default: Set map to x*y (if two arguments given, if there are more than two arguments for one operation without any given map, an error will be raised)
             self.map = lambda x, y: x * y
@@ -756,27 +758,32 @@ class LayeredPQC:
         return self._num_qubits
 
     def add_operation(
-        self, operation: _operation, variablegroup_tuple: tuple, variable_num_list=None
+        self, operation: _operation, variablegroup_tuple: tuple
     ):
         """
         adds an operation to the operation_list
         Args:
             operation [operation]: an operation of the class operation
             variablegroup_tuple [tuple]: a tuple of variablegroups
-            variable_num_list [list or None type]: gives information about how often a parameter is used in each operation;
-                for example in a 5 qubit system with R_x-Layers: There are 5 (number of qubits) R_x-Gates used,
-                whereas in nearest neighbour entangling there are only 4 (number of qubits - 1) variables per group used.
         """
+        print("hallihallo")
         if variablegroup_tuple == None:
             self.operation_list.append([operation, None])
         else:
-            # For the case that there are variables given but without an information about how often they are used, set variable_dif_list to [number of qubits] on default
-            if variable_num_list == None:
-                variable_num_list = [self.num_qubits for i in range(len(variablegroup_tuple))]
-            # adds the operation with the tuple of the variable groups used for this operation and the number of variables used per group:
-            self.operation_list.append([operation, variablegroup_tuple, variable_num_list])
-            # counter of the variables: if size not given, that means there is no finite dimension, than increase the counter of this variablegroup by number of the qubits
-            # otherwise use the size
+            # adds the operation with the tuple of the variable groups used for this operation:
+            self.operation_list.append([operation, variablegroup_tuple])
+
+            # creates the variable_num_list, which gives information about how often a parameter (the variable group) is used in each operation;
+            #   for example in a 5 qubit system with R_x-Layers: There are 5 (number of qubits) R_x-Gates used,
+            #   whereas in nearest neighbour entangling there are only 4 (number of qubits - 1) variables per group used.
+            if operation.ent_strategy == None:
+                number_of_variables = self.num_qubits
+            elif operation.ent_strategy == "NN":
+                number_of_variables = self.num_qubits - 1
+            else: # This should be the "AA" case:
+                number_of_variables = sum(x for x in range(1, self.num_qubits))
+            variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))] #TODO: muss vermutlich nicht einmal so kompliziert sein, da jeder Eintrag in der Liste sowieso der gleiche ist
+            # increases how often one variable group is used:
             iteration_counter = 0
             for variablegroup in variablegroup_tuple:
                 variablegroup.increase_used_number_of_variables(
@@ -792,6 +799,40 @@ class LayeredPQC:
                     self.add_operation(operation_iter[0], operation_iter[1], operation_iter[2])
                 else:
                     self.add_operation(operation_iter[0], operation_iter[1], None)
+
+    def get_params(self, deep: bool = True) -> dict:
+        param = {}
+        param["num_qubits"] = self._num_qubits
+        return param
+    
+    def set_params(self, **params):
+        print("hallo")
+        valid_params = self.get_params()
+        for key, value in params.items():
+            if key not in valid_params:
+                raise ValueError(
+                    f"Invalid parameter {key!r}. "
+                    f"Valid parameters are {sorted(valid_params)!r}."
+                )
+            # increases or decreases how often variable groups are used depending on the entangling strategy:
+            if key == "num_qubits" and value != self.num_qubits:
+                for operation_tuple in self.operation_list:
+                    operation = operation_tuple[0]
+                    var_group_tuple = operation_tuple[1]
+                    operation.num_qubits = value
+                    if var_group_tuple != None:
+                        if operation.ent_strategy == None:
+                            for var_group in var_group_tuple:
+                                var_group.increase_used_number_of_variables(value-self.num_qubits)
+                        elif operation.ent_strategy == "NN":
+                            for var_group in var_group_tuple:
+                                var_group.increase_used_number_of_variables(value-self.num_qubits)
+                        else: #That should be the "AA" case:
+                            for var_group in var_group_tuple:
+                                old_num_of_variables = sum(x for x in range(1, self.num_qubits))
+                                new_num_of_variables = sum(x for x in range(1, value))
+                                var_group.increase_used_number_of_variables(new_num_of_variables-old_num_of_variables)
+                self._num_qubits = value
 
     def get_number_of_variables(self, variablegroup: VariableGroup):
         """get how often the variable group was used (required for building parameter vectors by qiskit)"""
@@ -995,15 +1036,9 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _CP_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     def crx_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1017,15 +1052,9 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _CRX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     def cry_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1039,15 +1068,9 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _CRY_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     def crz_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1061,15 +1084,9 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _CRZ_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     def rxx_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1083,15 +1100,9 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _RXX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     def ryy_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1105,15 +1116,9 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _RYY_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     def rzx_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1127,15 +1132,9 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _RZX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     def rzz_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1149,15 +1148,9 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _RZZ_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     def cu_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1171,17 +1164,12 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: is not provided for a controlled unitary gate (raises Error if user gives a map)
         """
+        print("hallo3")
         if map != None:
             raise AttributeError("There must be no map for a cu entangling layer.")
-        if ent_strategy == "NN":
-            number_of_variables = self.num_qubits - 1
-        else:
-            number_of_variables = sum(x for x in range(1, self.num_qubits))
-        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
         self.add_operation(
             _CU_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
             variablegroup_tuple,
-            variable_num_list,
         )
 
     @classmethod
@@ -1720,7 +1708,7 @@ class LayerPQC(LayeredPQC):
         super().__init__(featuremap.num_qubits, featuremap.variable_groups)
 
     def add_operation(
-        self, operation: _operation, variablegroup_tuple: tuple, variable_num_list=None
+        self, operation: _operation, variablegroup_tuple: tuple
     ):
         """
         like the parent add_operation method with the exception, that we mustn't count the variable groups up, otherwise it would count once too much
@@ -1728,11 +1716,8 @@ class LayerPQC(LayeredPQC):
         if variablegroup_tuple == None:
             self.operation_list.append([operation, None])
         else:
-            # For the case that there are variables given but without an information about how often they are used, set variable_dif_list to [number of qubits] on default
-            if variable_num_list == None:
-                variable_num_list = [self.num_qubits for i in range(len(variablegroup_tuple))]
-            # adds the operation with the tuple of the variable groups used for this operation and the number of variables used per group:
-            self.operation_list.append([operation, variablegroup_tuple, variable_num_list])
+            # adds the operation with the tuple of the variable groups used for this operation:
+            self.operation_list.append([operation, variablegroup_tuple])
 
 
 class ConvertedLayeredFeatureMap(FeatureMapBase):
@@ -2078,6 +2063,12 @@ class LayeredFeatureMap(FeatureMapBase):
         """Returns number of parameters of the Layered Feature Map"""
         return self._layered_pqc.get_number_of_variables(self._p)
 
+    def get_params(self, deep: bool = True) -> dict:
+        return self._layered_pqc.get_params(deep)
+    
+    def set_params(self, **params) -> None:
+        self._layered_pqc.set_params(**params)
+
     def get_circuit(
         self,
         features: Union[ParameterVector, np.ndarray],
@@ -2176,7 +2167,11 @@ class LayeredFeatureMap(FeatureMapBase):
         Internal conversion routine for two qubit gates that calls the LayeredPQC routines with the correct
         variable group data
         """
+        print("ent_strategy",ent_strategy)
+        print(type(ent_strategy))
+        print(variable)
         vg_list = [self._str_to_variable_group(str) for str in variable]
+        print("hallo4")
         return function(*vg_list, ent_strategy=ent_strategy, map=encoding)
 
     def H(self):
@@ -2475,12 +2470,14 @@ class LayeredFeatureMap(FeatureMapBase):
             encoding (Callable): Encoding function that is applied to the variables, input in the
                                  same order as the given labels in variable_str
         """
+        print("hallo2")
         self._two_param_gate(
             *variable_str,
             function=self._layered_pqc.cu_entangling,
             ent_strategy=ent_strategy,
             encoding=encoding,
         )
+        print("hallo1")
 
 
 class Layer(LayeredFeatureMap):
