@@ -741,6 +741,7 @@ class LayeredPQC:
             variable_groups_string_tuple [tuple]: Tuple of the hash values for each variable group, with that, you can search the position of each variable_group,
                 e.g. variable_groups = (x_var, x_var2,...) with type(x_var) = variable_group and variable_string_list = (hash(x_var),hash(x_var2),...)
             layer_counter [int]: counts the number of different layers of the layer class used 
+            layer_application_list [list]: stores the number of applications of each layer (from Layer)
         """
         self._num_qubits = num_qubits
         self.operation_list = []
@@ -754,6 +755,7 @@ class LayeredPQC:
             self.variable_name_tuple = tuple(variable_name_list)
             self.variable_groups_string_tuple = tuple(variable_groups_string_list)
         self.layer_counter = 0
+        self.layer_application_list = []
 
     @property
     def num_qubits(self):
@@ -768,28 +770,24 @@ class LayeredPQC:
             operation [operation]: an operation of the class operation
             variablegroup_tuple [tuple]: a tuple of variablegroups
         """
-        print(type(operation))
-        if isinstance(operation, LayerPQC):
-            print("hier2")
+        if isinstance(operation, _operation_layer):
             self.operation_list.append(operation)
-            for layer_operation in operation.operation_list:
-                print("hier")
-                print(type(layer_operation))
-                variablegroup_tuple = layer_operation.variablegroup_tuple #TODO: wenn add_operation mit einem Layer als operation ausgeführt wird, ergibt die Übergabe mit variablegroup_tuple gar keinen Sinn, variable_grouptuple kann überhaupt ganz weg, da es sowieso im objekt operation gespeichert wird
-                if variablegroup_tuple != None:
-                    if layer_operation.ent_strategy == None:
-                        number_of_variables = self.num_qubits
-                    elif layer_operation.ent_strategy == "NN":
-                        number_of_variables = self.num_qubits - 1
-                    else: # This should be the "AA" case:
-                        number_of_variables = sum(x for x in range(1, self.num_qubits))
-                    variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
-                    iteration_counter = 0
-                    for variablegroup in variablegroup_tuple:
-                        variablegroup.increase_used_number_of_variables(variable_num_list[iteration_counter])
-                        iteration_counter += 1
+            for i in range(operation.num_layers):
+                for layer_operation in operation.layer.operation_list:
+                    variablegroup_tuple = layer_operation.variablegroup_tuple #TODO: wenn add_operation mit einem Layer als operation ausgeführt wird, ergibt die Übergabe mit variablegroup_tuple gar keinen Sinn, variable_grouptuple kann überhaupt ganz weg, da es sowieso im objekt operation gespeichert wird
+                    if variablegroup_tuple != None:
+                        if layer_operation.ent_strategy == None:
+                            number_of_variables = self.num_qubits
+                        elif layer_operation.ent_strategy == "NN":
+                            number_of_variables = self.num_qubits - 1
+                        else: # This should be the "AA" case:
+                            number_of_variables = sum(x for x in range(1, self.num_qubits))
+                        variable_num_list = [number_of_variables for i in range(len(variablegroup_tuple))]
+                        iteration_counter = 0
+                        for variablegroup in variablegroup_tuple:
+                            variablegroup.increase_used_number_of_variables(variable_num_list[iteration_counter])
+                            iteration_counter += 1
         else:
-            print("hallo")
             """old
             if variablegroup_tuple == None:
                 self.operation_list.append([operation, None])
@@ -815,7 +813,6 @@ class LayeredPQC:
                 for variablegroup in variablegroup_tuple:
                     variablegroup.increase_used_number_of_variables(variable_num_list[iteration_counter])
                     iteration_counter += 1
-        print(self.operation_list)
 
     def add_layer(self, layer, num_layers=1):
         """adds a layer of gates to the given feature map"""
@@ -826,19 +823,40 @@ class LayeredPQC:
                     self.add_operation(operation_iter[0], operation_iter[1])
                 else:
                     self.add_operation(operation_iter[0], operation_iter[1])
-        """
-        layer._layer_number = self.layer_counter
-        for i in range(num_layers):
-            self.add_operation(layer)
+        """# TODO neues layer-objekt mit num_layers
+        #layer._layer_number = self.layer_counter
+        #for i in range(num_layers): old
+        #    self.add_operation(layer)
+        self.layer_counter += 1 #counting of layers should begin with 1
+        operation_layer = _operation_layer(layer,num_layers,self.layer_counter)
+        self.layer_application_list.append(num_layers)
+        self.add_operation(operation_layer)
 
 
     def get_params(self, deep: bool = True) -> dict: # TODO: muss wegen layer-Objekten geändert werden sowie set_params
         param = {}
         param["num_qubits"] = self._num_qubits
+        # if len(self.layer_application_list) == 1:
+        #     param["num_layer"] = self.layer_application_list[0]
+        # elif len(self.layer_application_list) > 1:
+        #     name_iterator = 1
+        #     for layer_application in self.layer_application_list:
+        #         param["num_layer_{}".format(name_iterator)] = layer_application
+        #         name_iterator += 1
+        layer_counter = 0
+        for iter_layer in self.operation_list:
+            if isinstance(iter_layer,_operation_layer):
+                layer_counter += 1
+                param["num_layer_{}".format(iter_layer.layer_number)]  = iter_layer.num_layers
+                #only important, if there is only one layer:
+                number_of_applications = iter_layer.num_layers 
+                num_layer_name = iter_layer.layer_number
+        if layer_counter == 1:
+            param.pop("num_layer_{}".format(num_layer_name))
+            param["num_layer"] = number_of_applications
         return param
     
     def set_params(self, **params):
-        print("hallo")
         valid_params = self.get_params()
         for key, value in params.items():
             if key not in valid_params:
@@ -848,23 +866,28 @@ class LayeredPQC:
                 )
             # increases or decreases how often variable groups are used depending on the entangling strategy:
             if key == "num_qubits" and value != self.num_qubits:
-                for operation_tuple in self.operation_list: # Muss geändert werden, da operation_tuple[1] gar nicht mehr existiert (ist in oepration mit enthalten)
-                    operation = operation_tuple[0]
-                    var_group_tuple = operation_tuple[1]
-                    operation.num_qubits = value
-                    if var_group_tuple != None:
-                        if operation.ent_strategy == None:
-                            for var_group in var_group_tuple:
-                                var_group.increase_used_number_of_variables(value-self.num_qubits)
-                        elif operation.ent_strategy == "NN":
-                            for var_group in var_group_tuple:
-                                var_group.increase_used_number_of_variables(value-self.num_qubits)
-                        else: #That should be the "AA" case:
-                            for var_group in var_group_tuple:
-                                old_num_of_variables = sum(x for x in range(1, self.num_qubits))
-                                new_num_of_variables = sum(x for x in range(1, value))
-                                var_group.increase_used_number_of_variables(new_num_of_variables-old_num_of_variables)
+                for operation in self.operation_list: # Muss geändert werden, da operation_tuple[1] gar nicht mehr existiert (ist in oepration mit enthalten)
+                    if isinstance(operation,_operation_layer):
+                        operation.set_params(**params)
+                    else:
+                        var_group_tuple = operation.variablegroup_tuple
+                        operation.num_qubits = value
+                        if var_group_tuple != None:
+                            if operation.ent_strategy == None:
+                                for var_group in var_group_tuple:
+                                    var_group.increase_used_number_of_variables(value-self.num_qubits)
+                            elif operation.ent_strategy == "NN":
+                                for var_group in var_group_tuple:
+                                    var_group.increase_used_number_of_variables(value-self.num_qubits)
+                            else: #That should be the "AA" case:
+                                for var_group in var_group_tuple:
+                                    old_num_of_variables = sum(x for x in range(1, self.num_qubits))
+                                    new_num_of_variables = sum(x for x in range(1, value))
+                                    var_group.increase_used_number_of_variables(new_num_of_variables-old_num_of_variables)
                 self._num_qubits = value
+            else: # This is the case, if the user wants to change the number of applications of one layer (num_layer_1, num_layer_1 etc.)
+                pass#TODO: num_layer Zahl auslesen in op_liste passendes objekt finden, dann set_params anwenden und in operation_layer set_params erweitern um variablengruppen anzupassen
+
 
     def get_number_of_variables(self, variablegroup: VariableGroup):
         """get how often the variable group was used (required for building parameter vectors by qiskit)"""
@@ -902,13 +925,14 @@ class LayeredPQC:
                 QC = QC.compose(operation.get_circuit(var_param_assignment))
         """
         for operation in self.operation_list:
-            if isinstance(operation, LayerPQC):
-                layer = operation
-                for layer_operation in layer.operation_list:
-                    if layer_operation.variablegroup_tuple == None:
-                        QC = QC.compose(layer_operation.get_circuit())
-                    else:
-                        QC = QC.compose(layer_operation.get_circuit(var_param_assignment)) #TODO: unklar, ob man var_param_assignment noch ändern muss speziell für layer 
+            if isinstance(operation, _operation_layer):
+                operation_layer = operation
+                for i in range(operation_layer.num_layers):
+                    for op in operation_layer.layer.operation_list:
+                        if op.variablegroup_tuple == None:
+                            QC = QC.compose(op.get_circuit())
+                        else:
+                            QC = QC.compose(op.get_circuit(var_param_assignment)) #TODO: unklar, ob man var_param_assignment noch ändern muss speziell für layer 
             else:
                 if operation.variablegroup_tuple == None:
                     QC = QC.compose(operation.get_circuit())
@@ -2522,14 +2546,12 @@ class LayeredFeatureMap(FeatureMapBase):
             encoding (Callable): Encoding function that is applied to the variables, input in the
                                  same order as the given labels in variable_str
         """
-        print("hallo2")
         self._two_param_gate(
             *variable_str,
             function=self._layered_pqc.cu_entangling,
             ent_strategy=ent_strategy,
             encoding=encoding,
         )
-        print("hallo1")
 
 
 class Layer(LayeredFeatureMap):
@@ -2547,9 +2569,43 @@ class Layer(LayeredFeatureMap):
         self._p = feature_map._p
         self._layered_pqc = LayerPQC(feature_map._layered_pqc)
 
-        self._layer_number = 0
-
     @property
     def layered_pqc(self):
         """Returns the LayerPQC object of the Layered Feature Map"""
         return self._layered_pqc
+    
+
+class _operation_layer:
+    """
+    class for the operation_list in LayeredPQC. Stores layers of operations, which are created by the Layer class.
+    """
+    def __init__(self, layer: Layer, num_layers: int = 1, layer_number : int = 1) -> None:
+        self.layer = layer
+        self.num_layers = num_layers
+        self.layer_number = layer_number #TODO: only important for get_params, but add_layer already stores the number of layers in layer_application_list; so layer_number is not required?#TODO: wird momentan doch benötigt?
+
+    def set_params(self,**params):
+        for key, value in params.items():
+            # increases or decreases how often variable groups are used depending on the entangling strategy:
+            if key == "num_qubits":
+                for i in range(self.num_layers):
+                    for operation in self.layer.operation_list: # Muss geändert werden, da operation_tuple[1] gar nicht mehr existiert (ist in oepration mit enthalten)
+                        var_group_tuple = operation.variablegroup_tuple
+                        operation.num_qubits = value
+                        if var_group_tuple != None:
+                            if operation.ent_strategy == None:
+                                for var_group in var_group_tuple:
+                                    var_group.increase_used_number_of_variables(value-self.layer.num_qubits)
+                                    print(var_group)
+                                    print(var_group.total_variables_used)
+                            elif operation.ent_strategy == "NN":
+                                for var_group in var_group_tuple:
+                                    var_group.increase_used_number_of_variables(value-self.layer.num_qubits)
+                            else: #That should be the "AA" case:
+                                for var_group in var_group_tuple:
+                                    old_num_of_variables = sum(x for x in range(1, self.layer.num_qubits))
+                                    new_num_of_variables = sum(x for x in range(1, value))
+                                    var_group.increase_used_number_of_variables(new_num_of_variables-old_num_of_variables)
+                self.layer._num_qubits = value
+            elif key == "num_layer":
+                pass #TODO: und bei num_layer muss noch eine Zahl hin
