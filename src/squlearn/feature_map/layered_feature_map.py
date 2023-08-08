@@ -960,38 +960,36 @@ class LayeredPQC:
         self.add_operation(_H_operation(self.num_qubits, None))
 
     def X(self):
-        self.add_operation(_X_operation(self.num_qubits, None), None)
+        self.add_operation(_X_operation(self.num_qubits, None))
 
     def Y(self):
-        self.add_operation(_Y_operation(self.num_qubits, None), None)
+        self.add_operation(_Y_operation(self.num_qubits, None))
 
     def Z(self):
-        self.add_operation(_Z_operation(self.num_qubits, None), None)
+        self.add_operation(_Z_operation(self.num_qubits, None))
 
     def I(self):
-        self.add_operation(_Id_operation(self.num_qubits, None), None)
+        self.add_operation(_Id_operation(self.num_qubits, None))
 
     def S(self):
-        self.add_operation(_S_operation(self.num_qubits, None), None)
+        self.add_operation(_S_operation(self.num_qubits, None))
 
     def S_conjugate(self):
-        self.add_operation(_S_conjugate_operation(self.num_qubits, None), None)
+        self.add_operation(_S_conjugate_operation(self.num_qubits, None))
 
     def T(self):
-        self.add_operation(_T_operation(self.num_qubits, None), None)
+        self.add_operation(_T_operation(self.num_qubits, None))
 
     def T_conjugate(self):
-        self.add_operation(_T_conjugate_operation(self.num_qubits, None), None)
+        self.add_operation(_T_conjugate_operation(self.num_qubits, None))
 
     def Rx(self, *variablegroup_tuple, map=None):
         """
         variablegroup_tuple is a tuple of variable types (x1,x2 etc.)
         """
         if map == None:
-            #self.add_operation(_Rx_operation(self.num_qubits, variablegroup_tuple), variablegroup_tuple)
             self.add_operation(_Rx_operation(self.num_qubits, variablegroup_tuple))
         else:
-            #self.add_operation(_Rx_operation(self.num_qubits, variablegroup_tuple, map),variablegroup_tuple,) # TODO: muss fpr alle anderen funktionen auch noch geändert werden
             self.add_operation(_Rx_operation(self.num_qubits, variablegroup_tuple, map))
 
     def Ry(self, *variablegroup_tuple, map=None):
@@ -999,10 +997,8 @@ class LayeredPQC:
         variablegroup_tuple is a tuple of variable types (x1,x2 etc.)
         """
         if map == None:
-            #self.add_operation(_Ry_operation(self.num_qubits, variablegroup_tuple), variablegroup_tuple)
             self.add_operation(_Ry_operation(self.num_qubits, variablegroup_tuple))
         else:
-            #self.add_operation(_Ry_operation(self.num_qubits, variablegroup_tuple, map),variablegroup_tuple,)
             self.add_operation(_Ry_operation(self.num_qubits, variablegroup_tuple, map))
 
     def Rz(self, *variablegroup_tuple, map=None):
@@ -1011,7 +1007,7 @@ class LayeredPQC:
         """
         if map == None:
             self.add_operation(
-                _Rz_operation(self.num_qubits, variablegroup_tuple), variablegroup_tuple
+                _Rz_operation(self.num_qubits, variablegroup_tuple)
             )
         else:
             self.add_operation(
@@ -1024,12 +1020,11 @@ class LayeredPQC:
             if len(variablegroup_tuple) != 1:
                 raise ValueError("There must be one variable group for a P gate.")
             self.add_operation(
-                _P_operation(self.num_qubits, variablegroup_tuple), variablegroup_tuple
+                _P_operation(self.num_qubits, variablegroup_tuple)
             )
         else:
             self.add_operation(
-                _P_operation(self.num_qubits, variablegroup_tuple, map),
-                variablegroup_tuple,
+                _P_operation(self.num_qubits, variablegroup_tuple, map)
             )
 
     def U(self, *variablegroup_tuple, map=None):
@@ -1037,12 +1032,11 @@ class LayeredPQC:
             if len(variablegroup_tuple) != 3:
                 raise ValueError("There must be three variable groups for a U gate.")
             self.add_operation(
-                _U_operation(self.num_qubits, variablegroup_tuple), variablegroup_tuple
+                _U_operation(self.num_qubits, variablegroup_tuple)
             )
         else:
             self.add_operation(
-                _U_operation(self.num_qubits, variablegroup_tuple, map),
-                variablegroup_tuple,
+                _U_operation(self.num_qubits, variablegroup_tuple, map)
             )
 
     def ch_entangling(self, ent_strategy="NN"):
@@ -1056,7 +1050,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _CH_entangle_operation(self.num_qubits, None, ent_strategy, map=None), None
+            _CH_entangle_operation(self.num_qubits, None, ent_strategy, map=None)
         )
 
     def cx_entangling(self, ent_strategy="NN"):
@@ -1083,7 +1077,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _CY_entangle_operation(self.num_qubits, None, ent_strategy, map=None), None
+            _CY_entangle_operation(self.num_qubits, None, ent_strategy, map=None)
         )
 
     def cz_entangling(self, ent_strategy="NN"):
@@ -1097,7 +1091,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _CZ_entangle_operation(self.num_qubits, None, ent_strategy, map=None), None
+            _CZ_entangle_operation(self.num_qubits, None, ent_strategy, map=None)
         )
 
     def swap(self, ent_strategy="NN"):
@@ -1110,7 +1104,7 @@ class LayeredPQC:
                     otherwise ("AA"): Adds a controlled x all in all entangling operation
                 map: a function for one or more variable groups
         """
-        self.add_operation(_SWAP_operation(self.num_qubits, None, ent_strategy, map=None), None)
+        self.add_operation(_SWAP_operation(self.num_qubits, None, ent_strategy, map=None))
 
     def cp_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
         """
@@ -1124,8 +1118,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _CP_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _CP_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     def crx_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1140,8 +1133,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _CRX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _CRX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     def cry_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1156,8 +1148,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _CRY_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _CRY_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     def crz_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1172,8 +1163,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _CRZ_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _CRZ_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     def rxx_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1188,8 +1178,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _RXX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _RXX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     def ryy_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1204,8 +1193,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _RYY_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _RYY_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     def rzx_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1220,8 +1208,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _RZX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _RZX_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     def rzz_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1236,8 +1223,7 @@ class LayeredPQC:
                 map: a function for one or more variable groups
         """
         self.add_operation(
-            _RZZ_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _RZZ_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     def cu_entangling(self, *variablegroup_tuple, ent_strategy="NN", map=None):
@@ -1254,8 +1240,7 @@ class LayeredPQC:
         if map != None:
             raise AttributeError("There must be no map for a cu entangling layer.")
         self.add_operation(
-            _CU_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map),
-            variablegroup_tuple,
+            _CU_operation(self.num_qubits, variablegroup_tuple, ent_strategy, map)
         )
 
     @classmethod
