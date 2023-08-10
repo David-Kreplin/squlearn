@@ -89,19 +89,19 @@ class qcnn_feature_map(FeatureMapBase):
         param_reversed_counter = 0
         num_qubits = 1
         for operation in reversed(self.operation_list):
-            gate_qubits = operation.QC.num_qubits
+            gate_num_qubits = operation.QC.num_qubits
             gate_params = operation.QC.parameters
             if operation.layer == "f":
                 param_reversed_counter = len(gate_params)
-                num_qubits = gate_qubits
+                num_qubits = gate_num_qubits
             elif operation.layer == "c":
                 if operation.target_qubit == None:
                     if operation.var_param:
                         if operation.entangled: #TODO: wird später geändert
                             print("muss bei neuem entangled auch geändert werden")
-                            gate_appearance = int(num_qubits/gate_qubits) + int(num_qubits/gate_qubits)
+                            gate_appearance = int(num_qubits/gate_num_qubits) + int(num_qubits/gate_num_qubits)
                         else:
-                            gate_appearance = int(num_qubits/gate_qubits)
+                            gate_appearance = int(num_qubits/gate_num_qubits)
                         param_reversed_counter += gate_appearance*len(gate_params)
                     else:
                         param_reversed_counter += len(gate_params)
@@ -109,14 +109,14 @@ class qcnn_feature_map(FeatureMapBase):
                     param_reversed_counter += len(gate_params)
             elif operation.layer == "p":
                 if operation.var_param:
-                    num_qubits = gate_qubits*num_qubits
-                    gate_appearance = int(num_qubits/gate_qubits)
+                    gate_appearance = num_qubits
+                    num_qubits = gate_num_qubits*num_qubits
                     param_reversed_counter += gate_appearance*len(gate_params)
                 else:
+                    num_qubits = gate_num_qubits*num_qubits
                     param_reversed_counter += len(gate_params)
             else:
                 raise NameError("Unknown operation layer.")
-        print(param_reversed_counter)
         return param_reversed_counter
                 
 
@@ -150,10 +150,11 @@ class qcnn_feature_map(FeatureMapBase):
                             gate_appearance = int(self.controlled_qubits/gate_qubits)
                         self.parameter_counter += gate_appearance * len(gate_params)
                 elif operation.layer == "p":
-                    qubits_untouched = self.controlled_qubits%gate_qubits
-                    gate_appearance = int(self.controlled_qubits/gate_qubits)
-                    self.controlled_qubits = gate_appearance + qubits_untouched
-                    self.parameter_counter = gate_appearance * len(gate_params)
+                    if self.controlled_qubits != None:
+                        qubits_untouched = self.controlled_qubits%gate_qubits
+                        gate_appearance = int(self.controlled_qubits/gate_qubits)
+                        self.controlled_qubits = gate_appearance + qubits_untouched
+                        self.parameter_counter = gate_appearance * len(gate_params)
                 else:
                     self.parameter_counter += len(gate_params)
             else:
@@ -496,23 +497,24 @@ class qcnn_feature_map(FeatureMapBase):
         param_iter = len(parameters)  #Example: 5 Parameters (0,1,2,3,4); on fully: 3 Parameters (2,3,4); 
         #that means param_iter is 5 and param_length is 3. fully_layer gets a parametervectorlist with entries [2,3,4], after that param_iter is 5-3 = 2.
         reversed_input_qubits = 1
-        fully_present = False
+        fully_exists = False
         other_layer_before_fully = False
         for operation in reversed(self.operation_list): #TODO
             param_length = len(operation.QC.parameters)
             if operation.layer == "f":
-                fully_present = True
+                fully_exists = True
                 if other_layer_before_fully:
                     raise NameError("It's not allowed to put a fully connected layer before an other layer.")
                 QC = self.fully_layer(operation, parameters[(param_iter-param_length):param_iter])
                 reversed_input_qubits = operation.reversed_output_qubits
             elif operation.layer == "p":
-                if not fully_present:
+                if not fully_exists:
                     other_layer_before_fully = True
                 operation.reversed_input_qubits = reversed_input_qubits
                 gate_qubits = operation.QC.num_qubits
+                gate_appearance = operation.reversed_input_qubits
                 if operation.var_param:
-                    param_length = param_length * gate_qubits
+                    param_length = param_length * gate_appearance
                 # building up the list of qubits, which will be left
                 # Example: there are four 3-qubit gates, so the first one has 2 as target qubit, the second the fifth as target qubit. The target qubit of the third gate is number 6 and the last taret qubit is 9.
                 qubits_right_side = []
@@ -527,7 +529,7 @@ class qcnn_feature_map(FeatureMapBase):
                 QC = self.pooling_layer(operation, parameters[(param_iter-param_length):param_iter]).compose(QC,qubits_right_side)
                 reversed_input_qubits = operation.reversed_output_qubits
             else:
-                if not fully_present:
+                if not fully_exists:
                     other_layer_before_fully = True
                 if operation.var_param:
                     pass #TODO:
@@ -543,8 +545,6 @@ class qcnn_feature_map(FeatureMapBase):
         """
         A fully connected layer. Only important if the user don't give the number of qubits.
         """
-        #gate_params = operation.QC.parameters
-        #QC = QuantumCircuit(len(operation.QC.qubits))
         gate_params = operation.QC.parameters
         gate_num_qubits = operation.QC.num_qubits
         operation.reversed_input_qubits = gate_num_qubits
@@ -566,7 +566,7 @@ class qcnn_feature_map(FeatureMapBase):
         QC = QuantumCircuit(operation.reversed_output_qubits)
         num_gates = operation.reversed_input_qubits
         if operation.var_param:
-            map_dict_list = [{gate_params[i]:param_vec[i+k] for i in range(len(gate_params))} for k in range(num_gates)]
+            map_dict_list = [{gate_params[i]:param_vec[i+k*len(gate_params)] for i in range(len(gate_params))} for k in range(num_gates)]
             qubit_iter = 0
             for map_dict in map_dict_list:
                 gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
