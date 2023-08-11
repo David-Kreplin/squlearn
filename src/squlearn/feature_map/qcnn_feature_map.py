@@ -26,6 +26,7 @@ class operation():
             if layer == "c":
                 self.operator = "U"
                 self.output_qubits = self.input_qubits #TODO: input, outputqubits überhaupt nötig?
+                self.closed = False #TODO
             elif layer == "p":
                 self.operator = "V"
                 self.output_qubits = 1
@@ -75,49 +76,50 @@ class qcnn_feature_map(FeatureMapBase):
         self._num_qubits = num_qubits
         self.operation_list = [] # operation list, which contains every used convolution and pooling and also fully_connected operation
         self.parameter_counter = 0  # counts the number of parameters used, if num_qubits is an integer
-        #self.param_reversed_counter = 0 # counts the number of parameters used, when number_of _qubits is not given
+        #self.param_reversed_counter = 0 # counts the number of parameters used, when number_of _qubits is not given #TODO: entfernen wenn mans net braucht
         self.controlled_qubits = num_qubits # stores, how many qubits can be controlled yet
         self.fully_connected_layer = False
 
 
-    def get_num_params(self):
-        """# TODO: Dies muss später num_params ersetzen
-        if anzahl der qubits ist vorgegeben:
-            alte Berechnung, ergibt das überhaupt sinn? denn add operation und getnumparams sind völlig verschiedene Methoden
-        else:
-        """
-        param_reversed_counter = 0
-        num_qubits = 1
-        for operation in reversed(self.operation_list):
-            gate_num_qubits = operation.QC.num_qubits
-            gate_params = operation.QC.parameters
-            if operation.layer == "f":
-                param_reversed_counter = len(gate_params)
-                num_qubits = gate_num_qubits
-            elif operation.layer == "c":
-                if operation.target_qubit == None:
-                    if operation.var_param:
-                        if operation.entangled: #TODO: wird später geändert
-                            print("muss bei neuem entangled auch geändert werden")
-                            gate_appearance = int(num_qubits/gate_num_qubits) + int(num_qubits/gate_num_qubits)
-                        else:
-                            gate_appearance = int(num_qubits/gate_num_qubits)
-                        param_reversed_counter += gate_appearance*len(gate_params)
-                    else:
-                        param_reversed_counter += len(gate_params)
-                else: # TODO: option einer Liste vielleicht weglassen, da var_param und entangled an der Stelle sowieso keine Bedeutung haben
-                    param_reversed_counter += len(gate_params)
-            elif operation.layer == "p":
-                if operation.var_param:
-                    gate_appearance = num_qubits
-                    num_qubits = gate_num_qubits*num_qubits
-                    param_reversed_counter += gate_appearance*len(gate_params)
-                else:
-                    num_qubits = gate_num_qubits*num_qubits
-                    param_reversed_counter += len(gate_params)
-            else:
-                raise NameError("Unknown operation layer.")
-        return param_reversed_counter
+    # def get_num_params(self): #TODO: get_num_params in num_parameters integrieren
+    #     """# TODO: Dies muss später num_params ersetzen
+    #     if anzahl der qubits ist vorgegeben:
+    #         alte Berechnung, ergibt das überhaupt sinn? denn add operation und getnumparams sind völlig verschiedene Methoden
+    #     else:
+    #     """
+    #     param_reversed_counter = 0
+    #     num_qubits = 1
+    #     for operation in reversed(self.operation_list):
+    #         gate_num_qubits = operation.QC.num_qubits
+    #         gate_params = operation.QC.parameters
+    #         if operation.layer == "f":
+    #             param_reversed_counter = len(gate_params)
+    #             num_qubits = gate_num_qubits
+    #         elif operation.layer == "c":
+    #             if operation.target_qubit == None:
+    #                 if operation.var_param:
+    #                     #TODO: if operation.closed noch dazu machen, also das oben und unten ncoh ein Block hinzukommt
+    #                     if operation.entangled: #TODO: wird später geändert
+    #                         print("muss bei neuem entangled auch geändert werden")
+    #                         gate_appearance = int(num_qubits/gate_num_qubits) + int(num_qubits/gate_num_qubits)
+    #                     else:
+    #                         gate_appearance = int(num_qubits/gate_num_qubits)
+    #                     param_reversed_counter += gate_appearance*len(gate_params)
+    #                 else:
+    #                     param_reversed_counter += len(gate_params)
+    #             else: # TODO: option einer Liste vielleicht weglassen, da var_param und entangled an der Stelle sowieso keine Bedeutung haben
+    #                 param_reversed_counter += len(gate_params)
+    #         elif operation.layer == "p":
+    #             if operation.var_param:
+    #                 gate_appearance = num_qubits
+    #                 num_qubits = gate_num_qubits*num_qubits
+    #                 param_reversed_counter += gate_appearance*len(gate_params)
+    #             else:
+    #                 num_qubits = gate_num_qubits*num_qubits
+    #                 param_reversed_counter += len(gate_params)
+    #         else:
+    #             raise NameError("Unknown operation layer.")
+    #     return param_reversed_counter
                 
 
     def _add_operation(self, operation:operation):
@@ -139,26 +141,25 @@ class qcnn_feature_map(FeatureMapBase):
                 print("Warning on fully connected layer: The quantum circuit input controls too many qubits:",gate_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
         else:
             gate_params = operation.QC.parameters # stores, which parameter vectors are used by the gate
-            if operation.var_param:
-                if operation.layer == "c":
-                    if operation.target_qubit == None:
-                        self.parameter_counter += len(gate_params)
-                    else:
-                        if operation.entangled: 
-                            gate_appearance = int(self.controlled_qubits/gate_qubits) + int((self.controlled_qubits-1)/gate_qubits) # stores, how often a gate is applied to the circuit
+            if self.controlled_qubits != None:
+                if operation.var_param:
+                    if operation.layer == "c":
+                        if operation.target_qubit == None:
+                            self.parameter_counter += len(gate_params)
                         else:
-                            gate_appearance = int(self.controlled_qubits/gate_qubits)
-                        self.parameter_counter += gate_appearance * len(gate_params)
-                elif operation.layer == "p":
-                    if self.controlled_qubits != None:
+                            if operation.entangled: 
+                                gate_appearance = int(self.controlled_qubits/gate_qubits) + int((self.controlled_qubits-1)/gate_qubits) # stores, how often a gate is applied to the circuit
+                            else:
+                                gate_appearance = int(self.controlled_qubits/gate_qubits)
+                            self.parameter_counter += gate_appearance * len(gate_params)
+                    elif operation.layer == "p":
                         qubits_untouched = self.controlled_qubits%gate_qubits
                         gate_appearance = int(self.controlled_qubits/gate_qubits)
                         self.controlled_qubits = gate_appearance + qubits_untouched
                         self.parameter_counter = gate_appearance * len(gate_params)
+                    else:
+                        self.parameter_counter += len(gate_params)
                 else:
-                    self.parameter_counter += len(gate_params)
-            else:
-                if self.controlled_qubits != None: 
                     if operation.layer == "p":
                         qubits_untouched = self.controlled_qubits%gate_qubits
                         gate_appearance = int(self.controlled_qubits/gate_qubits)
@@ -189,32 +190,37 @@ class qcnn_feature_map(FeatureMapBase):
     @ property
     def num_parameters(self) -> int:
         """ Returns the number of trainable parameters of the feature map. """
-        if self.num_qubits == None:
+        if self._num_qubits == None:
             param_reversed_counter = 0
             num_qubits = 1
             for operation in reversed(self.operation_list):
-                gate_qubits = operation.QC.num_qubits
+                gate_num_qubits = operation.QC.num_qubits
                 gate_params = operation.QC.parameters
                 if operation.layer == "f":
                     param_reversed_counter = len(gate_params)
-                    num_qubits = gate_qubits
+                    num_qubits = gate_num_qubits
                 elif operation.layer == "c":
                     if operation.target_qubit == None:
                         if operation.var_param:
+                            #TODO: if operation.closed noch dazu machen, also das oben und unten ncoh ein Block hinzukommt
                             if operation.entangled: #TODO: wird später geändert
                                 print("muss bei neuem entangled auch geändert werden")
-                                gate_appearance = int(num_qubits/gate_qubits) + int(num_qubits/gate_qubits)
+                                gate_appearance = int(num_qubits/gate_num_qubits) + int(num_qubits/gate_num_qubits)
                             else:
-                                gate_appearance = int(num_qubits/gate_qubits)
+                                gate_appearance = int(num_qubits/gate_num_qubits)
                             param_reversed_counter += gate_appearance*len(gate_params)
                         else:
                             param_reversed_counter += len(gate_params)
                     else: # TODO: option einer Liste vielleicht weglassen, da var_param und entangled an der Stelle sowieso keine Bedeutung haben
-                        param_reversed_counter == len(gate_params)
+                        param_reversed_counter += len(gate_params)
                 elif operation.layer == "p":
-                    num_qubits = gate_qubits*num_qubits
-                    gate_appearance = int(num_qubits/gate_qubits)
-                    param_reversed_counter += gate_appearance*len(gate_params)
+                    if operation.var_param:
+                        gate_appearance = num_qubits
+                        num_qubits = gate_num_qubits*num_qubits
+                        param_reversed_counter += gate_appearance*len(gate_params)
+                    else:
+                        num_qubits = gate_num_qubits*num_qubits
+                        param_reversed_counter += len(gate_params)
                 else:
                     raise NameError("Unknown operation layer.")
             return param_reversed_counter
@@ -531,17 +537,25 @@ class qcnn_feature_map(FeatureMapBase):
             else:
                 if not fully_exists:
                     other_layer_before_fully = True
+                
+                operation.reversed_input_qubits = reversed_input_qubits
+                gate_qubits = operation.QC.num_qubits
                 if operation.var_param:
-                    pass #TODO:
-                    # if operation.entangled:
-                    #     if operation.closed:
+                    if operation.entangled:
+                        print("muss noch bearbeitet werden.")
+                    else:
+                        gate_appearance = int(reversed_input_qubits/gate_qubits)
+                        param_length = param_length * gate_appearance
+                        pass # TODO: wird wahrscheinlich gar nicht benötigt? nur im entangled und closed-fall?
+                    #TODO:     if operation.closed:
                     #     else:
                     # else:
-                QC = self.convolution_layer(operation, parameters[(param_iter-param_length):param_iter]).compose(QC)
+                QC = self.convolution_layer(operation, parameters[(param_iter-param_length):param_iter]).compose(QC, range(reversed_input_qubits))
+                reversed_input_qubits = operation.reversed_output_qubits
             param_iter -= param_length
         return QC
 
-    def fully_layer(self,operation:operation, param_vec):
+    def fully_layer(self,operation: operation, param_vec):
         """
         A fully connected layer. Only important if the user don't give the number of qubits.
         """
@@ -551,12 +565,12 @@ class qcnn_feature_map(FeatureMapBase):
         operation.reversed_output_qubits = gate_num_qubits
         QC = QuantumCircuit(gate_num_qubits)
         map_dict = {gate_params[i]:param_vec[i] for i in range(len(gate_params))}
-        gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+        gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator)) #TODO: Zählung der Operationsnamen: U_0,U_1 usw.
         controlled_qubits = range(gate_num_qubits)
         QC.append(gate, controlled_qubits)
         return QC
        
-    def pooling_layer(self, operation:operation, param_vec):
+    def pooling_layer(self, operation: operation, param_vec):
         """
         A pooling layer. Only important if the user don't give the number of qubits.
         """
@@ -583,11 +597,42 @@ class qcnn_feature_map(FeatureMapBase):
                 qubit_iter += gate_num_qubits
         return QC
     
-    def convolution_layer(self, operation, param_vec):
+    def convolution_layer(self, operation: operation, param_vec):
         """
         A convolutional layer. Only important if the user don't give the number of qubits.
         """
-        return None #TODO
+        gate_params = operation.QC.parameters
+        gate_num_qubits = operation.QC.num_qubits
+        operation.reversed_output_qubits = operation.reversed_input_qubits
+        QC = QuantumCircuit(operation.reversed_output_qubits)
+        if operation.entangled: 
+            if operation.closed:
+                pass #TODO
+            else:
+                pass #TODO
+        else:
+            if operation.closed:
+                pass #TODO
+            else:
+                num_gates = int(operation.reversed_output_qubits/gate_num_qubits)
+                if operation.var_param:
+                    map_dict_list = [{gate_params[i]:param_vec[i+k*len(gate_params)] for i in range(len(gate_params))} for k in range(num_gates)]
+                    qubit_iter = 0
+                    for map_dict in map_dict_list:
+                        gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+                        controlled_qubits = range(qubit_iter, gate_num_qubits+qubit_iter)
+                        QC.append(gate, controlled_qubits)
+                        qubit_iter += gate_num_qubits
+                else:
+                    map_dict = {gate_params[i]:param_vec[i] for i in range(len(gate_params))}
+                    qubit_iter = 0
+                    for i in range(num_gates):
+                        gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+                        controlled_qubits = range(qubit_iter, gate_num_qubits+qubit_iter)
+                        QC.append(gate, controlled_qubits)
+                        qubit_iter += gate_num_qubits
+        return QC
+
     
     def get_qubits_left(self):
         """ Returns which qubits the user can control yet. Only possible, if num_qubits exists. """
