@@ -9,7 +9,7 @@ from .feature_map_base import FeatureMapBase
 
 
 class operation():
-    def __init__(self, layer: str, QC: QuantumCircuit, entangled: bool, operator, var_param, target_qubit): #TODO: siehe auch convouliton: (...entangled: bool, var_param, operator)
+    def __init__(self, layer: str, QC: QuantumCircuit, entangled: bool, operator, var_param, target_qubit, closed : bool): #TODO: siehe auch convouliton: (...entangled: bool, var_param, operator)
         """
         Args:
             layer[str]: name of the layer (default: "c", "p" or "f")
@@ -26,7 +26,6 @@ class operation():
             if layer == "c":
                 self.operator = "U"
                 self.output_qubits = self.input_qubits #TODO: input, outputqubits überhaupt nötig?
-                self.closed = False #TODO
             elif layer == "p":
                 self.operator = "V"
                 self.output_qubits = 1
@@ -39,6 +38,7 @@ class operation():
         self.var_param = var_param
         # not necessary for pooling and fully connected layers:
         self.entangled = entangled
+        self.closed = closed
         # only necessary for pooling layers:
         self.target_qubit = target_qubit
         # only necessary for reversed build up of the circuit (if num_qubits is not given)
@@ -124,7 +124,6 @@ class qcnn_feature_map(FeatureMapBase):
 
     def _add_operation(self, operation:operation):
         """adds an operation to the operation_list and increases the parameter counter"""
-        # TODO if self.num_qubit == None: -> wird das überhaupt noch benötigt? weil so oder so soll er einen Fehler bei zwei fullys schmeißen?
         if operation.layer == "f":
             if self.fully_connected_layer:
                 raise TypeError("There must be at most one fully connected layer.")
@@ -147,7 +146,7 @@ class qcnn_feature_map(FeatureMapBase):
                         if operation.target_qubit == None:
                             self.parameter_counter += len(gate_params)
                         else:
-                            if operation.entangled: 
+                            if operation.entangled: #TODO: entangled bei vorhandenen Qubits muss auch noch geändert werden
                                 gate_appearance = int(self.controlled_qubits/gate_qubits) + int((self.controlled_qubits-1)/gate_qubits) # stores, how often a gate is applied to the circuit
                             else:
                                 gate_appearance = int(self.controlled_qubits/gate_qubits)
@@ -170,7 +169,7 @@ class qcnn_feature_map(FeatureMapBase):
     @property
     def num_qubits(self) -> int:
         """ Returns the number of qubits of the feature map. """
-        if self.num_qubits == None:
+        if self._num_qubits == None:
             num_qubits = 1
             for operation in reversed(self.operation_list):
                 gate_qubits = operation.QC.num_qubits
@@ -180,12 +179,12 @@ class qcnn_feature_map(FeatureMapBase):
                     num_qubits = gate_qubits*num_qubits
             return num_qubits #TODO: soll auch self.qubits überschrieben werden?
         else:
-            return self.num_qubits
+            return self._num_qubits
 
     @ property
     def num_features(self) -> int:
         """ Returns the dimension of features of the feature map. """
-        return self.num_qubits
+        return self.num_qubits #TODO: überprüfen ob das so passt also ob die Funktion num_qubits aufgerufen werden soll oder die Variable _num_qubits
 
     @ property
     def num_parameters(self) -> int:
@@ -202,10 +201,16 @@ class qcnn_feature_map(FeatureMapBase):
                 elif operation.layer == "c":
                     if operation.target_qubit == None:
                         if operation.var_param:
-                            #TODO: if operation.closed noch dazu machen, also das oben und unten ncoh ein Block hinzukommt
-                            if operation.entangled: #TODO: wird später geändert
-                                print("muss bei neuem entangled auch geändert werden")
-                                gate_appearance = int(num_qubits/gate_num_qubits) + int(num_qubits/gate_num_qubits)
+                            if operation.entangled:
+                                gate_block_appearance = int(num_qubits/gate_num_qubits)
+                                if operation.closed:
+                                    gate_appearance = gate_block_appearance * gate_num_qubits
+                                else:
+                                    #qubits_remainder = num_qubits%gate_num_qubits #stores the qubits left, which are not controlled in the first layer of the entangling #TODO: wird wahrscheinlich doch nicht benötigt
+                                    gate_appearance = 0
+                                    for i in range(gate_num_qubits): # on entangling we need exactly m=gate_num_qubits layers 
+                                        gate_block_appearance = int((num_qubits-i)/gate_num_qubits)
+                                        gate_appearance += gate_block_appearance
                             else:
                                 gate_appearance = int(num_qubits/gate_num_qubits)
                             param_reversed_counter += gate_appearance*len(gate_params)
@@ -251,8 +256,8 @@ class qcnn_feature_map(FeatureMapBase):
                     features: Union[ParameterVector,np.ndarray],
                     parameters: Union[ParameterVector,np.ndarray]
                     ) -> QuantumCircuit:
-        QC = QuantumCircuit(self.num_qubits)
-        controlled_qubits = [i for i in range(self.num_qubits)]
+        QC = QuantumCircuit(self.num_qubits) #TODO: überprüfen ob das so passt also ob die Funktion num_qubits aufgerufen werden soll oder die Variable _num_qubits
+        controlled_qubits = [i for i in range(self.num_qubits)] #TODO: überprüfen ob das so passt also ob die Funktion num_qubits aufgerufen werden soll oder die Variable _num_qubits usw.
         label_name_dict = {"c":0,"p":0} # is needed for counting the name of the operator, if the user doesn't defines it by himself
         global_param_counter = 0 # is required for assigning the local parameters (in every gate) to the global parameter
         for operation in self.operation_list:
@@ -517,7 +522,7 @@ class qcnn_feature_map(FeatureMapBase):
                 if not fully_exists:
                     other_layer_before_fully = True
                 operation.reversed_input_qubits = reversed_input_qubits
-                gate_qubits = operation.QC.num_qubits
+                gate_num_qubits = operation.QC.num_qubits
                 gate_appearance = operation.reversed_input_qubits
                 if operation.var_param:
                     param_length = param_length * gate_appearance
@@ -526,30 +531,35 @@ class qcnn_feature_map(FeatureMapBase):
                 qubits_right_side = []
                 aktive_qubit_iterator = -1
                 for i in range(int((reversed_input_qubits+1)/2)): # damit rundet das System reversed_input_qubits immer auf
-                    aktive_qubit_iterator += gate_qubits
+                    aktive_qubit_iterator += gate_num_qubits
                     qubits_right_side.append(aktive_qubit_iterator)
                 aktive_qubit_iterator += 1
                 for i in range(int((reversed_input_qubits+1)/2),reversed_input_qubits):
                     qubits_right_side.append(aktive_qubit_iterator)
-                    aktive_qubit_iterator += gate_qubits
+                    aktive_qubit_iterator += gate_num_qubits
                 QC = self.pooling_layer(operation, parameters[(param_iter-param_length):param_iter]).compose(QC,qubits_right_side)
                 reversed_input_qubits = operation.reversed_output_qubits
             else:
                 if not fully_exists:
                     other_layer_before_fully = True
-                
+                print(operation.closed)
                 operation.reversed_input_qubits = reversed_input_qubits
-                gate_qubits = operation.QC.num_qubits
+                gate_num_qubits = operation.QC.num_qubits
                 if operation.var_param:
                     if operation.entangled:
-                        print("muss noch bearbeitet werden.")
+                        gate_block_appearance = int(reversed_input_qubits/gate_num_qubits)
+                        if operation.closed:
+                            gate_appearance = gate_block_appearance * gate_num_qubits
+                        else:
+                            gate_appearance = 0
+                            for i in range(gate_num_qubits):
+                                gate_block_appearance = int((reversed_input_qubits-i)/gate_num_qubits)
+                                gate_appearance += gate_block_appearance
                     else:
-                        gate_appearance = int(reversed_input_qubits/gate_qubits)
-                        param_length = param_length * gate_appearance
-                        pass # TODO: wird wahrscheinlich gar nicht benötigt? nur im entangled und closed-fall?
-                    #TODO:     if operation.closed:
-                    #     else:
-                    # else:
+                        gate_appearance = int(reversed_input_qubits/gate_num_qubits)
+                    param_length = param_length * gate_appearance
+                print(parameters[(param_iter-param_length):param_iter])
+
                 QC = self.convolution_layer(operation, parameters[(param_iter-param_length):param_iter]).compose(QC, range(reversed_input_qubits))
                 reversed_input_qubits = operation.reversed_output_qubits
             param_iter -= param_length
@@ -606,31 +616,75 @@ class qcnn_feature_map(FeatureMapBase):
         operation.reversed_output_qubits = operation.reversed_input_qubits
         QC = QuantumCircuit(operation.reversed_output_qubits)
         if operation.entangled: 
+            print("is operationclosed:",operation.closed)
             if operation.closed:
-                pass #TODO
-            else:
-                pass #TODO
-        else:
-            if operation.closed:
-                pass #TODO
-            else:
-                num_gates = int(operation.reversed_output_qubits/gate_num_qubits)
                 if operation.var_param:
+                    num_gates = gate_num_qubits * int(operation.reversed_input_qubits/gate_num_qubits)
                     map_dict_list = [{gate_params[i]:param_vec[i+k*len(gate_params)] for i in range(len(gate_params))} for k in range(num_gates)]
-                    qubit_iter = 0
-                    for map_dict in map_dict_list:
-                        gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
-                        controlled_qubits = range(qubit_iter, gate_num_qubits+qubit_iter)
-                        QC.append(gate, controlled_qubits)
-                        qubit_iter += gate_num_qubits
+                    map_dict_iter = 0
+                    for i in range(gate_num_qubits):
+                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
+                            gate = circuit_to_gate(operation.QC, parameter_map=map_dict_list[map_dict_iter],label="{}".format(operation.operator))
+                            #controlled_qubits = range(first_gate_qubit,first_gate_qubit+gate_num_qubits)
+                            controlled_qubits = [t%operation.reversed_input_qubits for t in range(first_gate_qubit, first_gate_qubit+gate_num_qubits)]
+                            print(controlled_qubits)
+                            print("------------------8")
+                            QC.append(gate,controlled_qubits)
+                            map_dict_iter += 1
                 else:
                     map_dict = {gate_params[i]:param_vec[i] for i in range(len(gate_params))}
-                    qubit_iter = 0
-                    for i in range(num_gates):
-                        gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
-                        controlled_qubits = range(qubit_iter, gate_num_qubits+qubit_iter)
-                        QC.append(gate, controlled_qubits)
-                        qubit_iter += gate_num_qubits
+                    for i in range(gate_num_qubits):
+                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
+                            gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+                            #controlled_qubits = range(first_gate_qubit,first_gate_qubit+gate_num_qubits)
+                            controlled_qubits = [t%operation.reversed_input_qubits for t in range(first_gate_qubit, first_gate_qubit+gate_num_qubits)]
+                            print(controlled_qubits)
+                            QC.append(gate,controlled_qubits)
+            else:
+                if operation.var_param:
+                    num_gates = 0
+                    for i in range(gate_num_qubits):
+                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
+                            if operation.reversed_input_qubits-first_gate_qubit >= gate_num_qubits:
+                                num_gates += 1
+                    map_dict_list = [{gate_params[i]:param_vec[i+k*len(gate_params)] for i in range(len(gate_params))} for k in range(num_gates)]
+                    map_dict_iter = 0
+                    for i in range(gate_num_qubits):
+                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
+                            if operation.reversed_input_qubits-first_gate_qubit >= gate_num_qubits:
+                                gate = circuit_to_gate(operation.QC, parameter_map=map_dict_list[map_dict_iter],label="{}".format(operation.operator))
+                                controlled_qubits = range(first_gate_qubit,first_gate_qubit+gate_num_qubits)
+                                QC.append(gate,controlled_qubits)
+                                map_dict_iter += 1
+                else:
+                    print("hallo")
+                    # for i,j in zip(range(0,len(controlled_qubits),gate_qubits),range(gate_qubits-1,len(controlled_qubits),gate_qubits)):
+                    map_dict = {gate_params[i]:param_vec[i] for i in range(len(gate_params))}
+                    for i in range(gate_num_qubits):
+                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
+                            print(first_gate_qubit)
+                            if operation.reversed_input_qubits-first_gate_qubit >= gate_num_qubits:
+                                gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+                                controlled_qubits = range(first_gate_qubit,first_gate_qubit+gate_num_qubits)
+                                QC.append(gate,controlled_qubits)
+        else:
+            num_gates = int(operation.reversed_output_qubits/gate_num_qubits) #TODO: gemeinsamen Namen finden: entweder num_gates oder gate_appearance
+            if operation.var_param:
+                map_dict_list = [{gate_params[i]:param_vec[i+k*len(gate_params)] for i in range(len(gate_params))} for k in range(num_gates)]
+                qubit_iter = 0
+                for map_dict in map_dict_list:
+                    gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+                    controlled_qubits = range(qubit_iter, qubit_iter+gate_num_qubits)
+                    QC.append(gate, controlled_qubits)
+                    qubit_iter += gate_num_qubits
+            else:
+                map_dict = {gate_params[i]:param_vec[i] for i in range(len(gate_params))}
+                qubit_iter = 0
+                for i in range(num_gates):
+                    gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+                    controlled_qubits = range(qubit_iter, qubit_iter+gate_num_qubits)
+                    QC.append(gate, controlled_qubits)
+                    qubit_iter += gate_num_qubits
         return QC
 
     
@@ -651,7 +705,7 @@ class qcnn_feature_map(FeatureMapBase):
         return controlled_qubits
 
 
-    def convolution(self, QC, entangled : bool = False, operator = -1, var_param : bool = False, target_qubit : Union[int,list,None] = None): #TODO: operator in label umbenennen; # TODO: -1 in none umbenennen # TODO: target_qubits als liste
+    def convolution(self, QC, entangled : bool = False, operator = -1, var_param : bool = False, target_qubit : Union[int,list,None] = None, closed : bool = False): #TODO: operator in label umbenennen; # TODO: -1 in none umbenennen # TODO: target_qubits als liste
         # Zielqubit für gate? also z.b. Zielqubit für ein Gate der größe 3 ist 2, also wird 2,3 und 4 angesteuert, 
         # auf die qubits danach wird dann das Gate auch angewandt (so lange wie es mit der Anzahl der Qubits Sinn ergibt), aber sollen auch Gates davor angewandt werden? (nein oder?)
         # TODO: vielleicht: alle Zielqubits? für 3er Gate: z.B. qubit 1,3 und 4 ansprechen? (oder zu kompliziert und unnötig?)
@@ -665,7 +719,7 @@ class qcnn_feature_map(FeatureMapBase):
         """
         #if QC.num_qubits > len(self.get_qubits_left()): #TODO: veraltet, ist jetzt in addoperation eingebaut
         #    print("Warning on convolutional layer: The quantum circuit input controls too many qubits:",QC.num_qubits,"qubits on input vs.",len(self.get_qubits_left()),"qubits on the actual circuit.")
-        self._add_operation(operation("c",QC,entangled,operator,var_param,target_qubit))
+        self._add_operation(operation("c",QC,entangled,operator,var_param,target_qubit,closed))
 
     def pooling(self, QC, operator = -1, var_param : bool = False, target_qubit: Union[int,None] = None): #TODO: soll mit mehr als 2 qubits funktionieren, eingabe: welche qubits werden angesteuert, und welcher qubit ist der zielqubit, wie bei convolution mit liste
         # TOOD: Anzahl der Qubits, die angesteuert werden können soll n sein (und nur ein qubit soll danach bleiben) (nicht praxisrelevant) #TODO: pooling nur so wie in paint: also keine Extrawürschte und keine Listen
@@ -674,7 +728,8 @@ class qcnn_feature_map(FeatureMapBase):
         Default: it entangles qubit i with qubit i+1 so qubit i gets out of the controlled qubits list in get circuit and i+1 stays
         """
         entangled = False
-        self._add_operation(operation("p",QC,entangled,operator,var_param,target_qubit)) # TODO: überlegen, ob man nicht entangled  (False) auf optional lässt
+        closed = False
+        self._add_operation(operation("p",QC,entangled,operator,var_param,target_qubit,closed)) # TODO: überlegen, ob man nicht entangled  (False) auf optional lässt sowie closed
 
     def fully_connected(self, QC:QuantumCircuit, operator = -1):#TODO: bisher muss man ein Gate eingeben, dass genau der Qubit-Größe entspricht, aber der Benutzer wird die genaue Qubitgröße nicht immer wissen
         """QC must be a gate, which adresses all qubits left"""
@@ -684,5 +739,6 @@ class qcnn_feature_map(FeatureMapBase):
         var_param = False 
         entangled = False
         target_qubit = None
-        self._add_operation(operation("f",QC,entangled,operator,var_param, target_qubit))
+        closed = False
+        self._add_operation(operation("f",QC,entangled,operator,var_param, target_qubit, closed))
 
