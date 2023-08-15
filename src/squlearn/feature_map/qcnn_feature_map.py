@@ -130,14 +130,14 @@ class qcnn_feature_map(FeatureMapBase):
             else:
                 self.fully_connected_layer = True
 
-        gate_qubits = operation.QC.num_qubits # stores, how many qubits are addressed by the gate #TODO: gate_size vielleicht besserer Name?
-        if (self.controlled_qubits != None) and (gate_qubits > self.controlled_qubits):
+        gate_num_qubits = operation.QC.num_qubits # stores, how many qubits are addressed by the gate #TODO: gate_size vielleicht besserer Name?
+        if (self.controlled_qubits != None) and (gate_num_qubits > self.controlled_qubits):
             if operation.layer == "c":
-                print("Warning on convolutional layer: The quantum circuit input controls too many qubits:",gate_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
+                print("Warning on convolutional layer: The quantum circuit input controls too many qubits:",gate_num_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
             elif operation.layer == "p":
-                print("Warning on pooling layer: The quantum circuit input controls too many qubits:",gate_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
+                print("Warning on pooling layer: The quantum circuit input controls too many qubits:",gate_num_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
             else:
-                print("Warning on fully connected layer: The quantum circuit input controls too many qubits:",gate_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
+                print("Warning on fully connected layer: The quantum circuit input controls too many qubits:",gate_num_qubits,"qubits on input vs.",self.controlled_qubits,"qubits on the actual circuit.")
         else:
             gate_params = operation.QC.parameters # stores, which parameter vectors are used by the gate
             if self.controlled_qubits != None:
@@ -147,21 +147,21 @@ class qcnn_feature_map(FeatureMapBase):
                             self.parameter_counter += len(gate_params)
                         else:
                             if operation.entangled: #TODO: entangled bei vorhandenen Qubits muss auch noch geändert werden
-                                gate_appearance = int(self.controlled_qubits/gate_qubits) + int((self.controlled_qubits-1)/gate_qubits) # stores, how often a gate is applied to the circuit
+                                gate_appearance = int(self.controlled_qubits/gate_num_qubits) + int((self.controlled_qubits-1)/gate_num_qubits) # stores, how often a gate is applied to the circuit
                             else:
-                                gate_appearance = int(self.controlled_qubits/gate_qubits)
+                                gate_appearance = int(self.controlled_qubits/gate_num_qubits)
                             self.parameter_counter += gate_appearance * len(gate_params)
                     elif operation.layer == "p":
-                        qubits_untouched = self.controlled_qubits%gate_qubits
-                        gate_appearance = int(self.controlled_qubits/gate_qubits)
+                        qubits_untouched = self.controlled_qubits%gate_num_qubits
+                        gate_appearance = int(self.controlled_qubits/gate_num_qubits)
                         self.controlled_qubits = gate_appearance + qubits_untouched
                         self.parameter_counter = gate_appearance * len(gate_params)
                     else:
                         self.parameter_counter += len(gate_params)
                 else:
                     if operation.layer == "p":
-                        qubits_untouched = self.controlled_qubits%gate_qubits
-                        gate_appearance = int(self.controlled_qubits/gate_qubits)
+                        qubits_untouched = self.controlled_qubits%gate_num_qubits
+                        gate_appearance = int(self.controlled_qubits/gate_num_qubits)
                         self.controlled_qubits = gate_appearance + qubits_untouched
                     self.parameter_counter += len(gate_params)
             self.operation_list.append(operation)
@@ -169,6 +169,7 @@ class qcnn_feature_map(FeatureMapBase):
     @property
     def num_qubits(self) -> int:
         """ Returns the number of qubits of the feature map. """
+        print("halloooo")
         if self._num_qubits == None:
             num_qubits = 1
             for operation in reversed(self.operation_list):
@@ -256,7 +257,9 @@ class qcnn_feature_map(FeatureMapBase):
                     features: Union[ParameterVector,np.ndarray],
                     parameters: Union[ParameterVector,np.ndarray]
                     ) -> QuantumCircuit:
+        print("---------------------")
         QC = QuantumCircuit(self.num_qubits) #TODO: überprüfen ob das so passt also ob die Funktion num_qubits aufgerufen werden soll oder die Variable _num_qubits
+        print("###########################")
         controlled_qubits = [i for i in range(self.num_qubits)] #TODO: überprüfen ob das so passt also ob die Funktion num_qubits aufgerufen werden soll oder die Variable _num_qubits usw.
         label_name_dict = {"c":0,"p":0} # is needed for counting the name of the operator, if the user doesn't defines it by himself
         global_param_counter = 0 # is required for assigning the local parameters (in every gate) to the global parameter
@@ -615,54 +618,71 @@ class qcnn_feature_map(FeatureMapBase):
         gate_num_qubits = operation.QC.num_qubits
         operation.reversed_output_qubits = operation.reversed_input_qubits
         QC = QuantumCircuit(operation.reversed_output_qubits)
-        if operation.entangled: 
-            print("is operationclosed:",operation.closed)
+        if operation.entangled:
             if operation.closed:
                 if operation.var_param:
                     num_gates = gate_num_qubits * int(operation.reversed_input_qubits/gate_num_qubits)
                     map_dict_list = [{gate_params[i]:param_vec[i+k*len(gate_params)] for i in range(len(gate_params))} for k in range(num_gates)]
                     map_dict_iter = 0
-                    for i in range(gate_num_qubits):
-                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
-                            gate = circuit_to_gate(operation.QC, parameter_map=map_dict_list[map_dict_iter],label="{}".format(operation.operator))
-                            #controlled_qubits = range(first_gate_qubit,first_gate_qubit+gate_num_qubits)
-                            controlled_qubits = [t%operation.reversed_input_qubits for t in range(first_gate_qubit, first_gate_qubit+gate_num_qubits)]
-                            print(controlled_qubits)
-                            print("------------------8")
-                            QC.append(gate,controlled_qubits)
-                            map_dict_iter += 1
+                    if operation.reversed_input_qubits%gate_num_qubits == 0:
+                        for i in range(gate_num_qubits):
+                            for first_gate_qubit in range(i, operation.reversed_input_qubits, gate_num_qubits):
+                                gate = circuit_to_gate(operation.QC, parameter_map=map_dict_list[map_dict_iter],label="{}".format(operation.operator))
+                                controlled_qubits = [t%operation.reversed_input_qubits for t in range(first_gate_qubit, first_gate_qubit + gate_num_qubits)]
+                                QC.append(gate,controlled_qubits)
+                                map_dict_iter += 1
+                    else:
+                        for i in range(gate_num_qubits):
+                            gate_placed = False # stores if the gate is placed in the ith iteration, if not, force the first iteration to place one gate, 
+                            #this is important in the case num_qubits < 2*gate_qubits. In that case there must be gates, which control the first and the last qubit simultaneously.
+                            for first_gate_qubit in range(i, operation.reversed_input_qubits, gate_num_qubits):
+                                if (operation.reversed_input_qubits-first_gate_qubit>= gate_num_qubits) or not gate_placed:
+                                    gate = circuit_to_gate(operation.QC, parameter_map=map_dict_list[map_dict_iter],label="{}".format(operation.operator))
+                                    controlled_qubits = [t%operation.reversed_input_qubits for t in range(first_gate_qubit, first_gate_qubit + gate_num_qubits)]
+                                    QC.append(gate,controlled_qubits)
+                                    map_dict_iter += 1
+                                    gate_placed = True
                 else:
                     map_dict = {gate_params[i]:param_vec[i] for i in range(len(gate_params))}
-                    for i in range(gate_num_qubits):
-                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
-                            gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
-                            #controlled_qubits = range(first_gate_qubit,first_gate_qubit+gate_num_qubits)
-                            controlled_qubits = [t%operation.reversed_input_qubits for t in range(first_gate_qubit, first_gate_qubit+gate_num_qubits)]
-                            print(controlled_qubits)
-                            QC.append(gate,controlled_qubits)
+                    # Testing if num_qubits is dividable by gate_qubits, if so, iterate until every qubit is touched, 
+                    # otherwise iterate until there are not enough qubits left for the gate without touching the first qubit (and the last qubit) again:
+                    if operation.reversed_input_qubits%gate_num_qubits == 0:
+                        for i in range(gate_num_qubits):
+                            for first_gate_qubit in range(i, operation.reversed_input_qubits, gate_num_qubits):
+                                gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+                                controlled_qubits = [t%operation.reversed_input_qubits for t in range(first_gate_qubit, first_gate_qubit + gate_num_qubits)]
+                                print(controlled_qubits)
+                                QC.append(gate,controlled_qubits)
+                    else:
+                        for i in range(gate_num_qubits):
+                            gate_placed = False # stores if the gate is placed in the ith iteration, if not, force the first iteration to place one gate, 
+                            #this is important in the case num_qubits < 2*gate_qubits. In that case there must be gates, which control the first and the last qubit simultaneously.
+                            for first_gate_qubit in range(i, operation.reversed_input_qubits, gate_num_qubits):
+                                if (operation.reversed_input_qubits-first_gate_qubit>= gate_num_qubits) or not gate_placed:
+                                    gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
+                                    controlled_qubits = [t%operation.reversed_input_qubits for t in range(first_gate_qubit, first_gate_qubit + gate_num_qubits)]
+                                    QC.append(gate,controlled_qubits)
+                                    gate_placed = True
             else:
                 if operation.var_param:
                     num_gates = 0
                     for i in range(gate_num_qubits):
-                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
+                        for first_gate_qubit in range(i, operation.reversed_input_qubits, gate_num_qubits):
                             if operation.reversed_input_qubits-first_gate_qubit >= gate_num_qubits:
                                 num_gates += 1
                     map_dict_list = [{gate_params[i]:param_vec[i+k*len(gate_params)] for i in range(len(gate_params))} for k in range(num_gates)]
                     map_dict_iter = 0
                     for i in range(gate_num_qubits):
-                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
+                        for first_gate_qubit in range(i, operation.reversed_input_qubits, gate_num_qubits):
                             if operation.reversed_input_qubits-first_gate_qubit >= gate_num_qubits:
                                 gate = circuit_to_gate(operation.QC, parameter_map=map_dict_list[map_dict_iter],label="{}".format(operation.operator))
                                 controlled_qubits = range(first_gate_qubit,first_gate_qubit+gate_num_qubits)
                                 QC.append(gate,controlled_qubits)
                                 map_dict_iter += 1
                 else:
-                    print("hallo")
-                    # for i,j in zip(range(0,len(controlled_qubits),gate_qubits),range(gate_qubits-1,len(controlled_qubits),gate_qubits)):
                     map_dict = {gate_params[i]:param_vec[i] for i in range(len(gate_params))}
                     for i in range(gate_num_qubits):
-                        for first_gate_qubit in range(i, operation.reversed_input_qubits,gate_num_qubits):
-                            print(first_gate_qubit)
+                        for first_gate_qubit in range(i, operation.reversed_input_qubits, gate_num_qubits):
                             if operation.reversed_input_qubits-first_gate_qubit >= gate_num_qubits:
                                 gate = circuit_to_gate(operation.QC, parameter_map=map_dict,label="{}".format(operation.operator))
                                 controlled_qubits = range(first_gate_qubit,first_gate_qubit+gate_num_qubits)
