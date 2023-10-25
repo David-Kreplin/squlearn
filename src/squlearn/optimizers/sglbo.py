@@ -30,7 +30,7 @@ class SGLBO(OptimizerBase, SGDMixin):
             options = {}
 
         self.tol = options.get("tol", 1e-6)
-        self.maxiter = options.get("maxiter", 100)
+        self.maxiter = options.get("maxiter", 10)
         self.maxiter_total = options.get("maxiter_total", self.maxiter)
         self.eps = options.get("eps", 0.01)
         self.bo_calls = options.get("bo_calls", 10)
@@ -109,7 +109,7 @@ class SGLBO(OptimizerBase, SGDMixin):
             optimal_step_size = self.__optimal_step_size(self.func, self.x, gradient, i)
             update[i] = optimal_step_size * gradient
 
-        return update
+        return -update
 
     def __optimal_step_size(self, func, start_point, gradient, dimension):
         # cost function to optimize the step size in one dimension
@@ -125,16 +125,3 @@ class SGLBO(OptimizerBase, SGDMixin):
 
     def _update_lr(self) -> None:
         pass
-
-
-def f(x):
-    return x[0] ** 2
-
-
-if __name__ == "__main__":
-    start_point = np.array([5.0])
-
-    sglbo = SGLBO()
-    result = sglbo.minimize(f, start_point)
-
-    print("fun:", result.fun, "x:", result.x)
