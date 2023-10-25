@@ -1,8 +1,6 @@
 import abc
 import numpy as np
-from scipy.optimize import rosen
 from skopt import gp_minimize
-from skopt.space import Real
 
 from src.squlearn.optimizers import FiniteDiffGradient
 from src.squlearn.optimizers.optimizer_base import OptimizerBase, SGDMixin, OptimizerResult
@@ -17,7 +15,7 @@ class SGLBO(OptimizerBase, SGDMixin):
     * **maxiter_total** (int): Maximum number of iterations in total (default: maxiter)
     * **eps** (float): Step size for finite differences (default: 0.01)
     * **bo_calls** (int): Number of iterations for the Bayesian Optimization (default: 10)
-    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension (default: (0.001, 0.01))
+    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided in the `skopt.space.Real` format.
 
     Args:
         options (dict): Options for the SGLBO optimizer
@@ -30,7 +28,7 @@ class SGLBO(OptimizerBase, SGDMixin):
             options = {}
 
         self.tol = options.get("tol", 1e-6)
-        self.maxiter = options.get("maxiter", 10)
+        self.maxiter = options.get("maxiter", 100)
         self.maxiter_total = options.get("maxiter_total", self.maxiter)
         self.eps = options.get("eps", 0.01)
         self.bo_calls = options.get("bo_calls", 10)
@@ -47,7 +45,7 @@ class SGLBO(OptimizerBase, SGDMixin):
             bounds=None,
     ) -> OptimizerResult:
         """
-        Function to minimize a given function using the ADAM optimizer.
+        Function to minimize a given function using the SGLBO optimizer.
 
         Args:
             fun (callable): Function to minimize.
@@ -59,8 +57,13 @@ class SGLBO(OptimizerBase, SGDMixin):
             Result of the optimization in class:`OptimizerResult` format.
         """
 
+        # check if the bounds for the GP are specified
+        if len(self.bo_bounds) == 0:
+            raise TypeError("'bo_bounds' is missing")
+        if len(self.bo_bounds) < len(x0):
+            raise ValueError("'bo_bounds' is not specified for all dimensions")
+
         self.func = fun
-        self.bo_bounds = [Real(0.01, 0.1) for _ in range(len(x0))]
 
         # set-up number of iterations of the current run (needed for restarts)
         if self.maxiter != self.maxiter_total:
