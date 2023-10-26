@@ -1,7 +1,12 @@
 import abc
 import numpy as np
 from skopt import gp_minimize
-
+from skopt.space import Real
+from squlearn import Executor
+from squlearn.encoding_circuit import ChebPQC
+from squlearn.observables import SummedPaulis
+from squlearn.qnn import QNNRegressor, SquaredLoss
+from matplotlib import pyplot as plt
 from src.squlearn.optimizers import FiniteDiffGradient
 from src.squlearn.optimizers.optimizer_base import OptimizerBase, SGDMixin, OptimizerResult
 
@@ -15,7 +20,7 @@ class SGLBO(OptimizerBase, SGDMixin):
     * **maxiter_total** (int): Maximum number of iterations in total (default: maxiter)
     * **eps** (float): Step size for finite differences (default: 0.01)
     * **bo_calls** (int): Number of iterations for the Bayesian Optimization (default: 10)
-    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided in the `skopt.space.Real` format.
+    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided in the `skopt.space.Real` format (default: (0.001, 0.01))
 
     Args:
         options (dict): Options for the SGLBO optimizer
@@ -32,8 +37,9 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.maxiter_total = options.get("maxiter_total", self.maxiter)
         self.eps = options.get("eps", 0.01)
         self.bo_calls = options.get("bo_calls", 10)
-        self.bo_bounds = options.get("bo_bounds", [])
+        self.bo_bounds = options.get("bo_bounds", [Real(0.001, 0.01)])
 
+        self.options = options
         self.x = None
         self.func = None
 
@@ -56,12 +62,6 @@ class SGLBO(OptimizerBase, SGDMixin):
         Returns:
             Result of the optimization in class:`OptimizerResult` format.
         """
-
-        # check if the bounds for the GP are specified
-        if len(self.bo_bounds) == 0:
-            raise TypeError("'bo_bounds' is missing")
-        if len(self.bo_bounds) < len(x0):
-            raise ValueError("'bo_bounds' is not specified for all dimensions")
 
         self.func = fun
 
@@ -128,3 +128,6 @@ class SGLBO(OptimizerBase, SGDMixin):
 
     def _update_lr(self) -> None:
         pass
+
+    def set_callback(self, callback):
+        self.callback = callback
