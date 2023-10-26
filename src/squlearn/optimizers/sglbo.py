@@ -2,11 +2,7 @@ import abc
 import numpy as np
 from skopt import gp_minimize
 from skopt.space import Real
-from squlearn import Executor
-from squlearn.encoding_circuit import ChebPQC
-from squlearn.observables import SummedPaulis
-from squlearn.qnn import QNNRegressor, SquaredLoss
-from matplotlib import pyplot as plt
+from squlearn.optimizers.optimizer_base import default_callback
 from src.squlearn.optimizers import FiniteDiffGradient
 from src.squlearn.optimizers.optimizer_base import OptimizerBase, SGDMixin, OptimizerResult
 
@@ -105,29 +101,27 @@ class SGLBO(OptimizerBase, SGDMixin):
             Update for the current iteration (np.ndarray).
 
         """
-        update = np.zeros_like(self.x)
 
-        for i in range(len(self.x)):
-            gradient = grad[i]
-            optimal_step_size = self.__optimal_step_size(self.func, self.x, gradient, i)
-            update[i] = optimal_step_size * gradient
+        optimal_step_size = self.__optimal_step_size(self.func, self.x, grad)
+        update = optimal_step_size * grad
+
+        print("optimal step Size:", optimal_step_size)
+        print("update:", update)
+        print("gradient:", grad)
 
         return -update
 
-    def __optimal_step_size(self, func, start_point, gradient, dimension):
+    def __optimal_step_size(self, func, start_point, gradient):
         # cost function to optimize the step size in one dimension
         def step_size_cost(x):
             updated_point = start_point.copy()
-            updated_point[dimension] = updated_point[dimension] - x[dimension] * gradient
+            updated_point = updated_point - x * gradient
             return func(updated_point)
 
         # bayesian optimization to estimate the step size in one dimension
         result = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_calls)
 
-        return result.x[dimension]
+        return result.x
 
     def _update_lr(self) -> None:
         pass
-
-    def set_callback(self, callback):
-        self.callback = callback
