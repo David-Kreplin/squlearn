@@ -16,7 +16,7 @@ from ..util import Executor
 
 from .loss import LossBase
 from .qnn import QNN
-from .training import shot_adjusting_options
+from .training import ShotControlBase
 
 
 class BaseQNN(BaseEstimator, ABC):
@@ -58,7 +58,7 @@ class BaseQNN(BaseEstimator, ABC):
         shuffle: bool = None,
         opt_param_op: bool = True,
         variance: Union[float, Callable] = None,
-        shot_adjusting: shot_adjusting_options = None,
+        shot_control: ShotControlBase = None,
         parameter_seed: Union[int, None] = 0,
         caching: bool = True,
         pretrained: bool = False,
@@ -71,6 +71,7 @@ class BaseQNN(BaseEstimator, ABC):
         self.loss = loss
         self.optimizer = optimizer
         self.variance = variance
+        self.shot_control = shot_control
         self.parameter_seed = parameter_seed
 
         if param_ini is None:
@@ -88,12 +89,12 @@ class BaseQNN(BaseEstimator, ABC):
             if isinstance(operator, list):
                 self.param_op_ini = np.concatenate(
                     [
-                        operator.generate_initial_parameters(seed=parameter_seed)
-                        for operator in operator
+                        operator.generate_initial_parameters(seed=parameter_seed + i + 1)
+                        for i, operator in enumerate(operator)
                     ]
                 )
             else:
-                self.param_op_ini = operator.generate_initial_parameters(seed=parameter_seed)
+                self.param_op_ini = operator.generate_initial_parameters(seed=parameter_seed + 1)
         else:
             self.param_op_ini = param_op_ini
         self._param_op = self.param_op_ini.copy()
@@ -111,7 +112,6 @@ class BaseQNN(BaseEstimator, ABC):
 
         self.opt_param_op = opt_param_op
 
-        self.shot_adjusting = shot_adjusting
         self.caching = caching
         self.pretrained = pretrained
 
@@ -120,6 +120,10 @@ class BaseQNN(BaseEstimator, ABC):
             self.encoding_circuit, self.operator, executor, result_caching=self.caching
         )
 
+        self.shot_control = shot_control
+        if self.shot_control is not None:
+            self.shot_control.set_executor(self.executor)
+
         self.callback = callback
 
         if self.callback:
@@ -127,6 +131,10 @@ class BaseQNN(BaseEstimator, ABC):
                 self.optimizer.set_callback(self.callback)
             elif self.callback == "pbar":
                 self._pbar = None
+                if isinstance(self.optimizer, SGDMixin) and self.batch_size:
+                    self._total_iterations = self.epochs
+                else:
+                    self._total_iterations = self.optimizer.options.get("maxiter", 100)
 
                 def pbar_callback(*args):
                     self._pbar.update(1)
