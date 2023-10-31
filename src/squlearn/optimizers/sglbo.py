@@ -9,7 +9,7 @@ from sklearn.preprocessing import MinMaxScaler
 from skopt import gp_minimize
 from skopt.space import Real
 from squlearn import Executor
-from squlearn.encoding_circuit import ChebPQC, ChebRx
+from squlearn.encoding_circuit import ChebyshevPQC, ChebyshevRx
 from squlearn.observables import SummedPaulis, IsingHamiltonian
 from squlearn.optimizers import FiniteDiffGradient, SLSQP
 from squlearn.optimizers.optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
@@ -84,6 +84,7 @@ class SGLBO(OptimizerBase, SGDMixin):
 
         while self.iteration < maxiter:
             # calculate the gradient
+            fval = fun(self.x)
             gradient = grad(self.x)
 
             x_updated = self.step(x=self.x, grad=gradient)
@@ -114,11 +115,6 @@ class SGLBO(OptimizerBase, SGDMixin):
 
         optimal_step_size = self.__optimal_step_size(self.func, self.x, grad)
         update = optimal_step_size * grad
-
-        print("optimal step Size:", optimal_step_size)
-        print("update:", update)
-        print("gradient:", grad)
-
         return -update
 
     def __optimal_step_size(self, func, start_point, gradient):
@@ -149,7 +145,7 @@ def regression_example_logarithm(optimizer):
     # define the PQC
     nqubits = 4
     number_of_layers = 2
-    pqc = ChebRx(nqubits, 1, num_layers=number_of_layers)
+    pqc = ChebyshevRx(nqubits, 1, num_layers=number_of_layers)
 
     # define the Observable
     ising_op = IsingHamiltonian(nqubits, I="S", Z="S", ZZ="S")
