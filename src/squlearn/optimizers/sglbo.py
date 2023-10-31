@@ -1,10 +1,19 @@
 import abc
 import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap
+from scipy.optimize import rosen
+from sklearn.datasets import make_blobs
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 from skopt import gp_minimize
 from skopt.space import Real
-from squlearn.optimizers.optimizer_base import default_callback
-from src.squlearn.optimizers import FiniteDiffGradient
-from src.squlearn.optimizers.optimizer_base import OptimizerBase, SGDMixin, OptimizerResult
+from squlearn import Executor
+from squlearn.encoding_circuit import ChebPQC, ChebRx
+from squlearn.observables import SummedPaulis, IsingHamiltonian
+from squlearn.optimizers import FiniteDiffGradient, SLSQP
+from squlearn.optimizers.optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
+from squlearn.qnn import QNNRegressor, SquaredLoss, QNNClassifier
 
 
 class SGLBO(OptimizerBase, SGDMixin):
@@ -22,7 +31,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         options (dict): Options for the SGLBO optimizer
     """
 
-    def __init__(self, options: dict = None) -> None:
+    def __init__(self, options: dict = None, callback=default_callback) -> None:
         super(SGDMixin, self).__init__()
 
         if options is None:
@@ -35,6 +44,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.bo_calls = options.get("bo_calls", 10)
         self.bo_bounds = options.get("bo_bounds", [Real(0.001, 0.01)])
 
+        self.callback = callback
         self.options = options
         self.x = None
         self.func = None
@@ -125,3 +135,109 @@ class SGLBO(OptimizerBase, SGDMixin):
 
     def _update_lr(self) -> None:
         pass
+
+
+def regression_example_logarithm(optimizer):
+    """
+    In this example a QNNRegressor is trained to fit a logarithm
+
+    Args:
+        optimizer (OptimizerBase): The Optimizer used to optimize the loss function
+    """
+    executor = Executor("statevector_simulator")
+
+    # define the PQC
+    nqubits = 4
+    number_of_layers = 2
+    pqc = ChebRx(nqubits, 1, num_layers=number_of_layers)
+
+    # define the Observable
+    ising_op = IsingHamiltonian(nqubits, I="S", Z="S", ZZ="S")
+
+    # define random initial parameters for the PQC and the cost operator
+    np.random.seed(13)
+    param_ini = np.random.rand(pqc.num_parameters)
+    param_op_ini = np.random.rand(ising_op.num_parameters)
+
+    # define the regressor
+    reg = QNNRegressor(pqc, ising_op, executor, SquaredLoss(), optimizer, param_ini, param_op_ini)
+
+    # train the regressor
+    x_space = np.arange(0.1, 0.9, 0.1)
+    ref_values = np.log(x_space)
+
+    reg.fit(x_space, ref_values)
+
+    # print the trained parameters for the PQC and the operator
+    print("Result PQC params:", reg.param)
+    print("Result operator params:", reg.param_op)
+
+    # plot the predicted function vs. the actual logarithm function
+    x = np.arange(np.min(x_space), np.max(x_space), 0.005)
+    y = reg.predict(x)
+    plt.plot(x, np.log(x))
+    plt.plot(x, y)
+
+    # plot the error of the QNN
+    plt.plot(x, np.abs(y - np.log(x)))
+
+
+def classification_example(optimizer):
+    """
+    In this example a QNNClassifier is used for classification of points in 2D space
+
+    Args:
+        optimizer (OptimizerBase): Optimizer used to optimize the loss function
+    """
+    executor = Executor("statevector_simulator")
+
+    # define the PQC
+    nqubits = 4
+    number_of_layers = 2
+    pqc = ChebRx(nqubits, 2, num_layers=number_of_layers)
+
+    # define the observable
+    cost_op = SummedPaulis(nqubits)
+
+    # define initial parameters for the PQC and the cost operator
+    np.random.seed(24)
+    param_ini = np.random.rand(pqc.num_parameters)
+    param_op_ini = np.random.rand(cost_op.num_parameters)
+
+    # define the classifier
+    clf = QNNClassifier(pqc, cost_op, executor, SquaredLoss(), optimizer, param_ini, param_op_ini)
+
+    # generate the dataset
+    X, y = make_blobs(60, centers=2, random_state=0)
+    X = MinMaxScaler((-0.9, 0.9)).fit_transform(X)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+    # train the classifier
+    clf.fit(X_train, y_train)
+
+    # print the trained parameters
+    print("Result PQC params:", clf.param)
+    print("Result operator params:", clf.param_op)
+
+    # check the classifiers performance on the test set
+    clf.score(X_test, y_test)
+
+    # visualize the training and test data, as well as the decision boundary of the classifier
+    xx, yy = np.meshgrid(np.arange(-0.99, 0.99, 0.01), np.arange(-0.99, 0.99, 0.01))
+
+    cm = plt.cm.RdBu
+    cm_bright = ListedColormap(["#FF0000", "#0000FF"])
+
+    Z = clf.predict_proba(np.column_stack([xx.ravel(), yy.ravel()]))[:, 1]
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, cmap=cm, alpha=0.6)
+
+    plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright)
+    # and testing points
+    plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright, alpha=0.6, marker="X")
+    plt.plot()
+
+
+if __name__ == '__main__':
+
+    regression_example_logarithm(SGLBO())
