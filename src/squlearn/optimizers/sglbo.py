@@ -9,11 +9,13 @@ from sklearn.preprocessing import MinMaxScaler
 from skopt import gp_minimize
 from skopt.space import Real
 from squlearn import Executor
-from squlearn.encoding_circuit import ChebyshevPQC, ChebyshevRx
+from squlearn.encoding_circuit import ChebRx
 from squlearn.observables import SummedPaulis, IsingHamiltonian
-from squlearn.optimizers import FiniteDiffGradient, SLSQP
+from squlearn.optimizers import FiniteDiffGradient, SLSQP, Adam
 from squlearn.optimizers.optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
 from squlearn.qnn import QNNRegressor, SquaredLoss, QNNClassifier
+
+from src.squlearn.encoding_circuit import ChebyshevRx
 
 
 class SGLBO(OptimizerBase, SGDMixin):
@@ -24,8 +26,9 @@ class SGLBO(OptimizerBase, SGDMixin):
     * **maxiter** (int): Maximum number of iterations per fit run (default: 100)
     * **maxiter_total** (int): Maximum number of iterations in total (default: maxiter)
     * **eps** (float): Step size for finite differences (default: 0.01)
-    * **bo_calls** (int): Number of iterations for the Bayesian Optimization (default: 10)
-    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided in the `skopt.space.Real` format (default: (0.001, 0.01))
+    * **bo_calls** (int): Number of iterations for the Bayesian Optimization (default: 20)
+    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided in the `skopt.space.Real` format (default: (0.0001, 0.001))
+    * **log_file** (str): File to log the optimization (default: None)
 
     Args:
         options (dict): Options for the SGLBO optimizer
@@ -42,12 +45,24 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.maxiter_total = options.get("maxiter_total", self.maxiter)
         self.eps = options.get("eps", 0.01)
         self.bo_calls = options.get("bo_calls", 10)
-        self.bo_bounds = options.get("bo_bounds", [Real(0.001, 0.01)])
+        self.bo_bounds = options.get("bo_bounds", [Real(0.0, 1.0)])
+        self.log_file = options.get("log_file", None)
 
         self.callback = callback
         self.options = options
         self.x = None
         self.func = None
+
+        if self.log_file is not None:
+            f = open(self.log_file, "w")
+            output = " %9s  %12s  %12s  %12s \n" % (
+                "Iteration",
+                "f(x)",
+                "Gradient",
+                "Step"
+            )
+            f.write(output)
+            f.close()
 
     def minimize(
             self,
@@ -93,6 +108,9 @@ class SGLBO(OptimizerBase, SGDMixin):
             if np.linalg.norm(self.x - x_updated) < self.tol:
                 break
 
+            if self.log_file is not None:
+                self._log(fval, gradient, np.linalg.norm(self.x - x_updated))
+
             self.x = x_updated
 
         result = OptimizerResult()
@@ -122,6 +140,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         def step_size_cost(x):
             updated_point = start_point.copy()
             updated_point = updated_point - x * gradient
+            print("BOP ", "fval: ", func(updated_point), " x: ", x)
             return func(updated_point)
 
         # bayesian optimization to estimate the step size in one dimension
@@ -131,6 +150,26 @@ class SGLBO(OptimizerBase, SGDMixin):
 
     def _update_lr(self) -> None:
         pass
+
+    def _log(self, fval, gradient, dx):
+        """Function for creating a log entry of the optimization."""
+        if self.log_file is not None:
+            f = open(self.log_file, "a")
+            if fval is not None:
+                output = " %9d  %12.5f  %12.5f  %12.5f  \n" % (
+                    self.iteration,
+                    fval,
+                    np.linalg.norm(gradient),
+                    dx,
+                )
+            else:
+                output = " %9d  %12.5f  %12.5f  \n" % (
+                    self.iteration,
+                    np.linalg.norm(gradient),
+                    dx,
+                )
+            f.write(output)
+            f.close()
 
 
 def regression_example_logarithm(optimizer):
@@ -171,11 +210,13 @@ def regression_example_logarithm(optimizer):
     # plot the predicted function vs. the actual logarithm function
     x = np.arange(np.min(x_space), np.max(x_space), 0.005)
     y = reg.predict(x)
-    plt.plot(x, np.log(x))
-    plt.plot(x, y)
+    plt.plot(x, np.log(x), label="Tatsächliche Log-Funktion")
+    plt.plot(x, y, label="Vorhergesagte Funktion")
 
     # plot the error of the QNN
-    plt.plot(x, np.abs(y - np.log(x)))
+    plt.plot(x, np.abs(y - np.log(x)), label="Fehler")
+    plt.legend()
+    plt.show()
 
 
 def classification_example(optimizer):
@@ -235,5 +276,5 @@ def classification_example(optimizer):
 
 
 if __name__ == '__main__':
+    regression_example_logarithm(SGLBO({"log_file": "test_log", "maxiter_total": 10}))
 
-    regression_example_logarithm(SGLBO())
