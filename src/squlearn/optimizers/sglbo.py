@@ -27,9 +27,15 @@ class SGLBO(OptimizerBase, SGDMixin):
     * **maxiter_total** (int): Maximum number of iterations in total (default: maxiter)
     * **eps** (float): Step size for finite differences (default: 0.01)
     * **bo_calls** (int): Number of iterations for the Bayesian Optimization (default: 20)
-    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided in the `skopt.space.Real` format (default: (0.0001, 0.001))
+    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided as a tupel (default: (0.0001, 0.001))
     * **log_file** (str): File to log the optimization (default: None)
-
+    * **acq_func** (str): Acquisition function for the Bayesian Optimization (default: gp_hedge).
+      Valid values for `acq_func` are:
+        * "LCB"
+        * "EI"
+        * "PI"
+        * "gp_hedge"
+    * **n_initial_points** (int): Number of initial points for the Bayesian Optimization (default: 10)
     Args:
         options (dict): Options for the SGLBO optimizer
     """
@@ -44,8 +50,12 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.maxiter = options.get("maxiter", 100)
         self.maxiter_total = options.get("maxiter_total", self.maxiter)
         self.eps = options.get("eps", 0.01)
-        self.bo_calls = options.get("bo_calls", 10)
-        self.bo_bounds = options.get("bo_bounds", [Real(0.0, 1.0)])
+        self.bo_n_calls = options.get("bo_n_calls", 20)
+        self.bo_bounds = options.get("bo_bounds", [Real(0.0, 0.5)])
+        self.bo_aqc_func = options.get("bo_aqc_func", "gp_hedge")
+        self.bo_aqc_optimizer = options.get("bo_aqc_optimizer", "lbfgs")
+        self.bo_n_initial_points = options.get("bo_n_initial_points", 10)
+        self.bo_x0_points = options.get("bo_x0_points")
         self.log_file = options.get("log_file", None)
 
         self.callback = callback
@@ -55,12 +65,20 @@ class SGLBO(OptimizerBase, SGDMixin):
 
         if self.log_file is not None:
             f = open(self.log_file, "w")
+            header = (f"maxiter_total: {self.maxiter_total}\n"
+                      f"bo_n_calls: {self.bo_n_calls}\n"
+                      f"bo_bounds: {self.bo_bounds}\n"
+                      f"bo_aqc_func: {self.bo_aqc_func}\n"
+                      f"bo_aqc_optimizer: {self.bo_aqc_optimizer}\n"
+                      f"bo_n_initial_points: {self.bo_n_initial_points}\n"
+                      f"bo_x0_points: {self.bo_x0_points}\n")
             output = " %9s  %12s  %12s  %12s \n" % (
                 "Iteration",
                 "f(x)",
                 "Gradient",
                 "Step"
             )
+            f.write(header)
             f.write(output)
             f.close()
 
@@ -144,8 +162,9 @@ class SGLBO(OptimizerBase, SGDMixin):
             return func(updated_point)
 
         # bayesian optimization to estimate the step size in one dimension
-        result = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_calls)
-
+        result = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
+                             acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1)
+        print("gp_minimize: ", "fval: ", result.fun, " x: ", result.x)
         return result.x
 
     def _update_lr(self) -> None:
@@ -276,5 +295,5 @@ def classification_example(optimizer):
 
 
 if __name__ == '__main__':
-    regression_example_logarithm(SGLBO({"log_file": "test_log", "maxiter_total": 10}))
-
+    options = {"log_file": "test_log", "bo_bounds": [Real(0.0, 0.3)], "bo_x0_points": [[0.1, 0.15, 0.2]]}
+    regression_example_logarithm(SGLBO(options))
