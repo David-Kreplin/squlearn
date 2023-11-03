@@ -26,16 +26,19 @@ class SGLBO(OptimizerBase, SGDMixin):
     * **maxiter** (int): Maximum number of iterations per fit run (default: 100)
     * **maxiter_total** (int): Maximum number of iterations in total (default: maxiter)
     * **eps** (float): Step size for finite differences (default: 0.01)
-    * **bo_calls** (int): Number of iterations for the Bayesian Optimization (default: 20)
-    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided as a tupel (default: (0.0001, 0.001))
-    * **log_file** (str): File to log the optimization (default: None)
-    * **acq_func** (str): Acquisition function for the Bayesian Optimization (default: gp_hedge).
+    * **bo_n_calls** (int): Number of iterations for the Bayesian Optimization (default: 20)
+    * **bo_bounds** (List): Lower and upper bound for the search space for the Bayesian Optimization for each dimension. Each bound should be provided as a tupel (default: (0.0, 0.3))
+    * **bo_n_initial_points** (int): Number of initial points for the Bayesian Optimization (default: 10)
+    * **bo_x0_points** (list of lists): Initial input points (default: None)
+    * **bo_aqc_optimizer** (str): Method to minimize the acquisition function. "sampling" or "lbfgs" (default: "lbfgs")
+    * **bo_acq_func** (str): Acquisition function for the Bayesian Optimization (default: "EI").
       Valid values for `acq_func` are:
         * "LCB"
         * "EI"
         * "PI"
         * "gp_hedge"
-    * **n_initial_points** (int): Number of initial points for the Bayesian Optimization (default: 10)
+    * **log_file** (str): File to log the optimization (default: None)
+
     Args:
         options (dict): Options for the SGLBO optimizer
     """
@@ -51,8 +54,8 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.maxiter_total = options.get("maxiter_total", self.maxiter)
         self.eps = options.get("eps", 0.01)
         self.bo_n_calls = options.get("bo_n_calls", 20)
-        self.bo_bounds = options.get("bo_bounds", [Real(0.0, 0.5)])
-        self.bo_aqc_func = options.get("bo_aqc_func", "gp_hedge")
+        self.bo_bounds = options.get("bo_bounds", [(0.0, 0.3)])
+        self.bo_aqc_func = options.get("bo_aqc_func", "EI")
         self.bo_aqc_optimizer = options.get("bo_aqc_optimizer", "lbfgs")
         self.bo_n_initial_points = options.get("bo_n_initial_points", 10)
         self.bo_x0_points = options.get("bo_x0_points")
@@ -163,7 +166,7 @@ class SGLBO(OptimizerBase, SGDMixin):
 
         # bayesian optimization to estimate the step size in one dimension
         result = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
-                             acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1)
+                             acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0)
         print("gp_minimize: ", "fval: ", result.fun, " x: ", result.x)
         return result.x
 
