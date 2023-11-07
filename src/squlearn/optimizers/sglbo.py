@@ -59,6 +59,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.bo_aqc_optimizer = options.get("bo_aqc_optimizer", "lbfgs")
         self.bo_n_initial_points = options.get("bo_n_initial_points", 10)
         self.bo_x0_points = options.get("bo_x0_points")
+        self.bo_initial_point_generator = options.get("bo_initial_point_generator", "random")
         self.log_file = options.get("log_file", None)
 
         self.callback = callback
@@ -74,7 +75,8 @@ class SGLBO(OptimizerBase, SGDMixin):
                       f"bo_aqc_func: {self.bo_aqc_func}\n"
                       f"bo_aqc_optimizer: {self.bo_aqc_optimizer}\n"
                       f"bo_n_initial_points: {self.bo_n_initial_points}\n"
-                      f"bo_x0_points: {self.bo_x0_points}\n")
+                      f"bo_x0_points: {self.bo_x0_points}\n"
+                      f"bo_initial_points_generator: {self.bo_initial_point_generator}\n")
             output = " %9s  %12s  %12s  %12s \n" % (
                 "Iteration",
                 "f(x)",
@@ -166,7 +168,7 @@ class SGLBO(OptimizerBase, SGDMixin):
 
         # bayesian optimization to estimate the step size in one dimension
         result = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
-                             acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0)
+                             acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0, initial_point_generator=self.bo_initial_point_generator)
         print("gp_minimize: ", "fval: ", result.fun, " x: ", result.x)
         return result.x
 
