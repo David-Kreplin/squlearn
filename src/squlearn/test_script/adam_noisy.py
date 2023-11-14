@@ -27,7 +27,7 @@ param_op_ini = np.random.rand(ising_op.num_parameters)
 optimizer_options = {"lr": 0.3, "maxiter": 200, "log_file": "/data/log_adam_noisy.log"}
 
 # define the regressor
-reg = QNNRegressor(pqc, ising_op, executor, SquaredLoss(), SGLBO(optimizer_options), param_ini, param_op_ini)
+reg = QNNRegressor(pqc, ising_op, executor, SquaredLoss(), Adam(optimizer_options), param_ini, param_op_ini)
 
 # train the regressor
 x_space = np.arange(0.1, 0.9, 0.1)

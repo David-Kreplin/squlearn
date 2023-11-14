@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from squlearn import Executor
 from squlearn.encoding_circuit import ChebyshevRx
 from squlearn.observables import IsingHamiltonian
-from squlearn.optimizers import Adam
+from squlearn.optimizers import Adam, SGLBO
 from squlearn.qnn import QNNRegressor, SquaredLoss
 
 executor = Executor("statevector_simulator")
@@ -24,11 +24,11 @@ param_op_ini = np.random.rand(ising_op.num_parameters)
 
 # define the optimzer options
 x0 = [[i * 0.02] for i in range(15)]
-optimizer_options = {"bo_aqc_func": "EI", "bo_aqc_optimizer": "lbfgs", "bo_bounds": [(0.0, 0.3)], "log_file": "/data/log_sglbo_noiseless",
+optimizer_options = {"bo_aqc_func": "EI", "bo_aqc_optimizer": "lbfgs", "bo_bounds": [(0.0, 0.3)], "log_file": "/data/log_sglbo_noiseless.log",
                      "bo_n_calls": 30, "bo_x0_points": x0, "maxiter": 200}
 
 # define the regressor
-reg = QNNRegressor(pqc, ising_op, executor, SquaredLoss(), Adam(optimizer_options), param_ini, param_op_ini)
+reg = QNNRegressor(pqc, ising_op, executor, SquaredLoss(), SGLBO(optimizer_options), param_ini, param_op_ini)
 
 # train the regressor
 x_space = np.arange(0.1, 0.9, 0.1)
