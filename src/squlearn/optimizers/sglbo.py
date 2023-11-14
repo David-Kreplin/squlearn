@@ -1,10 +1,9 @@
 import abc
 import numpy as np
 from skopt import gp_minimize
-from squlearn.optimizers import FiniteDiffGradient
-from squlearn.optimizers.optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
 
-
+from .approximated_gradients import FiniteDiffGradient
+from .optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
 
 class SGLBO(OptimizerBase, SGDMixin):
     """sQUlearn's implementation of the SGLBO optimizer
