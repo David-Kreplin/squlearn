@@ -292,6 +292,8 @@ def train(
             if isinstance(shot_control, ShotsFromRSTD):
                 shot_control.set_shots_for_loss()
 
+        #print("param",param)
+
         loss_values = qnn.evaluate(loss.loss_args_tuple, input_values, param, param_op)
 
         loss_value = loss.value(
@@ -300,6 +302,7 @@ def train(
             weights=weights_values,
             iteration=iteration,
         )
+        #print("loss_value",loss_value)
         return loss_value
 
     def _grad(theta):
