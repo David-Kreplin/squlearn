@@ -1,6 +1,6 @@
 import abc
 import numpy as np
-from skopt import gp_minimize
+from skopt import gp_minimize, expected_minimum
 
 from .approximated_gradients import FiniteDiffGradient
 from .optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
@@ -154,11 +154,12 @@ class SGLBO(OptimizerBase, SGDMixin):
             return func(updated_point)
 
         # bayesian optimization to estimate the step size in one dimension
-        result = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
+        res = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
                              acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0, noise=self.bo_noise)
-        print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", result.fun, " x: ", result.x, '\033[0m')
+        fun, x = expected_minimum(res)
+        print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x, '\033[0m')
 
-        return result.x
+        return x
 
     def _update_lr(self) -> None:
         pass
