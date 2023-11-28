@@ -112,6 +112,10 @@ class SGLBO(OptimizerBase, SGDMixin):
             fval = fun(self.x)
             gradient = grad(self.x)
 
+            # adapt bounds and x0 based on gradient
+            if self.bo_bounds is not None and self.bo_x0_points is not None:
+                self.bo_bounds, self.bo_x0_points = self.__adapt_bounds(self.bo_bounds, self.bo_x0_points, gradient)
+
             x_updated = self.step(x=self.x, grad=gradient)
 
             # check termination
@@ -160,6 +164,44 @@ class SGLBO(OptimizerBase, SGDMixin):
         print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x_val, '\033[0m')
 
         return x_val
+
+    def __adapt_bounds(self, current_bounds, current_x0, gradient):
+        """
+        Function to adapt the bounds and initial points for gp_minimize based on the gradient information.
+
+        Args:
+            current_bounds (List): Current bounds for the search space.
+            current_x0 (List): Current initial points.
+            gradient (np.ndarray): Gradient of the objective function.
+
+        Returns:
+            Tuple: Updated bounds for the search space and initial points.
+        """
+        factor = 0.5
+
+        # Compute the magnitude of the gradient
+        grad_magnitude = np.linalg.norm(gradient)
+
+        # Update the bounds based on the gradient magnitude
+        updated_bounds = []
+        for bound in current_bounds:
+            lower = max(bound[0] - factor * grad_magnitude, 0.0)
+            upper = bound[1] + factor * grad_magnitude
+            updated_bounds.append((lower, upper))
+
+        # Update the initial points based on the updated bounds and maintaining distribution
+        updated_x0 = []
+
+        # Distribute the x0 points evenly within the updated bounds
+        for i in range(len(current_x0)):
+            t = i / len(current_x0)  # t goes from 0 to 1
+            updated_x0_point = [
+                lower + t * (upper - lower) for (lower, upper) in updated_bounds
+            ]
+            updated_x0.append(updated_x0_point)
+
+        return updated_bounds, updated_x0
+
 
     def _update_lr(self) -> None:
         pass
