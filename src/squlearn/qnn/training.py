@@ -316,6 +316,9 @@ def train(
         else:
             iteration = None
 
+        with open("sglbo_noiseless_params2.log", 'a') as datei:
+            datei.write(f'{theta[0]}    {theta[1]}\n')
+
         # Splitting theta in the arrays
         if opt_param_op:
             param_ = theta[: len(param_ini)]
