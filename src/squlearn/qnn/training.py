@@ -275,6 +275,13 @@ def train(
 
     iteration = 0
 
+    f = open("sglbo_noiseless_params2.log", "w")
+    f.close()
+
+    f = open("sglbo_noiseless_gradient2.log", "w")
+    f.close()
+
+
     def _fun(theta):
         nonlocal iteration
         nonlocal optimizer
@@ -319,6 +326,7 @@ def train(
         with open("sglbo_noiseless_params2.log", 'a') as datei:
             datei.write(f'{theta[0]}    {theta[1]}\n')
 
+
         # Splitting theta in the arrays
         if opt_param_op:
             param_ = theta[: len(param_ini)]
@@ -359,6 +367,10 @@ def train(
             ),
             axis=None,
         )
+        
+        with open("sglbo_noiseless_gradient2.log", 'a') as datei:
+            datei.write(f'{grad[0]}    {grad[1]}\n')        
+        
         return grad
 
     result = optimizer.minimize(_fun, val_ini, _grad, bounds=None)

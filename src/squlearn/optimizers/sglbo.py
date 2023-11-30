@@ -141,6 +141,12 @@ class SGLBO(OptimizerBase, SGDMixin):
 
         """
 
+        print("gradient",grad)
+
+        # print finite difference gradient
+        finite_diff_grad = FiniteDiffGradient(self.func, eps=self.eps).gradient(self.x)
+        print("finite_diff_grad", finite_diff_grad)
+
         optimal_step_size = self.__optimal_step_size(self.func, self.x, grad)
         update = optimal_step_size * grad
         return -update
