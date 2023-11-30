@@ -48,6 +48,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.bo_n_initial_points = options.get("bo_n_initial_points", 10)
         self.bo_x0_points = options.get("bo_x0_points")
         self.bo_noise = options.get("bo_noise", "gaussian")
+        self.bo_bounds_fac = options.get("bo_bounds_fac", 0)
         self.log_file = options.get("log_file", None)
 
         self.callback = callback
@@ -160,8 +161,10 @@ class SGLBO(OptimizerBase, SGDMixin):
         # bayesian optimization to estimate the step size in one dimension
         res = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
                              acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0, noise=self.bo_noise)
-        x_val, fun = expected_minimum(res)
-        print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x_val, '\033[0m')
+        #x_val, fun = expected_minimum(res)
+        x_val = res.x
+        fun = res.fun
+        print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x_val, " bounds: ", self.bo_bounds,'\033[0m')
 
         return x_val
 
@@ -177,7 +180,6 @@ class SGLBO(OptimizerBase, SGDMixin):
         Returns:
             Tuple: Updated bounds for the search space and initial points.
         """
-        factor = 0.5
 
         # Compute the magnitude of the gradient
         grad_magnitude = np.linalg.norm(gradient)
@@ -185,8 +187,8 @@ class SGLBO(OptimizerBase, SGDMixin):
         # Update the bounds based on the gradient magnitude
         updated_bounds = []
         for bound in current_bounds:
-            lower = max(bound[0] - factor * grad_magnitude, 0.0)
-            upper = bound[1] + factor * grad_magnitude
+            lower = max(bound[0] - self.bo_bounds_fac * grad_magnitude, 0.0)
+            upper = bound[1] + self.bo_bounds_fac * grad_magnitude
             updated_bounds.append((lower, upper))
 
         # Update the initial points based on the updated bounds and maintaining distribution
