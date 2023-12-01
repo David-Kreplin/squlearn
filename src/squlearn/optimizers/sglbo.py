@@ -1,6 +1,9 @@
 import abc
+import os
+os.environ['OPENBLAS'] = 'openblas'
 import numpy as np
 from skopt import gp_minimize, expected_minimum
+from bayes_opt import BayesianOptimization
 
 from .approximated_gradients import FiniteDiffGradient
 from .optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
@@ -167,6 +170,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x_val, " bounds: ", self.bo_bounds,'\033[0m')
 
         return x_val
+
 
     def __adapt_bounds(self, current_bounds, current_x0, gradient):
         """
