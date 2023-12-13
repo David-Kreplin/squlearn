@@ -1,6 +1,9 @@
 import abc
+import os
+os.environ['OPENBLAS'] = 'openblas'
 import numpy as np
 from skopt import gp_minimize, expected_minimum
+from bayes_opt import BayesianOptimization
 
 from .approximated_gradients import FiniteDiffGradient
 from .optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
@@ -48,6 +51,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.bo_n_initial_points = options.get("bo_n_initial_points", 10)
         self.bo_x0_points = options.get("bo_x0_points")
         self.bo_noise = options.get("bo_noise", "gaussian")
+        self.bo_bounds_fac = options.get("bo_bounds_fac", 0)
         self.log_file = options.get("log_file", None)
 
         self.callback = callback
@@ -112,6 +116,10 @@ class SGLBO(OptimizerBase, SGDMixin):
             fval = fun(self.x)
             gradient = grad(self.x)
 
+            # adapt bounds and x0 based on gradient
+            if self.bo_bounds is not None and self.bo_x0_points is not None:
+                self.bo_bounds, self.bo_x0_points = self.__adapt_bounds(self.bo_bounds, self.bo_x0_points, gradient)
+
             x_updated = self.step(x=self.x, grad=gradient)
 
             # check termination
@@ -162,10 +170,50 @@ class SGLBO(OptimizerBase, SGDMixin):
         # bayesian optimization to estimate the step size in one dimension
         res = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
                              acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0, noise=self.bo_noise)
-        x_val, fun = expected_minimum(res)
-        print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x_val, '\033[0m')
+        #x_val, fun = expected_minimum(res)
+        x_val = res.x
+        fun = res.fun
+        print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x_val, " bounds: ", self.bo_bounds,'\033[0m')
 
         return x_val
+
+
+    def __adapt_bounds(self, current_bounds, current_x0, gradient):
+        """
+        Function to adapt the bounds and initial points for gp_minimize based on the gradient information.
+
+        Args:
+            current_bounds (List): Current bounds for the search space.
+            current_x0 (List): Current initial points.
+            gradient (np.ndarray): Gradient of the objective function.
+
+        Returns:
+            Tuple: Updated bounds for the search space and initial points.
+        """
+
+        # Compute the magnitude of the gradient
+        grad_magnitude = np.linalg.norm(gradient)
+
+        # Update the bounds based on the gradient magnitude
+        updated_bounds = []
+        for bound in current_bounds:
+            lower = max(bound[0] - self.bo_bounds_fac * grad_magnitude, 0.0)
+            upper = bound[1] + self.bo_bounds_fac * grad_magnitude
+            updated_bounds.append((lower, upper))
+
+        # Update the initial points based on the updated bounds and maintaining distribution
+        updated_x0 = []
+
+        # Distribute the x0 points evenly within the updated bounds
+        for i in range(len(current_x0)):
+            t = i / len(current_x0)  # t goes from 0 to 1
+            updated_x0_point = [
+                lower + t * (upper - lower) for (lower, upper) in updated_bounds
+            ]
+            updated_x0.append(updated_x0_point)
+
+        return updated_bounds, updated_x0
+
 
     def _update_lr(self) -> None:
         pass
