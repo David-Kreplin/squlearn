@@ -3,7 +3,6 @@ import os
 os.environ['OPENBLAS'] = 'openblas'
 import numpy as np
 from skopt import gp_minimize, expected_minimum
-from bayes_opt import BayesianOptimization
 
 from .approximated_gradients import FiniteDiffGradient
 from .optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
