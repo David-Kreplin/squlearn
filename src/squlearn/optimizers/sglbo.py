@@ -50,7 +50,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.bo_n_initial_points = options.get("bo_n_initial_points", 10)
         self.bo_x0_points = options.get("bo_x0_points")
         self.bo_noise = options.get("bo_noise", "gaussian")
-        self.bo_bounds_fac = options.get("bo_bounds_fac", 0)
+        self.bo_bounds_fac = options.get("bo_bounds_fac", None)
         self.log_file = options.get("log_file", None)
 
         self.callback = callback
@@ -116,7 +116,7 @@ class SGLBO(OptimizerBase, SGDMixin):
             gradient = grad(self.x)
 
             # adapt bounds and x0 based on gradient
-            if self.bo_bounds is not None and self.bo_x0_points is not None:
+            if self.bo_bounds is not None and self.bo_x0_points is not None and self.bo_bounds_fac is not None:
                 self.bo_bounds, self.bo_x0_points = self.__adapt_bounds(self.bo_bounds, self.bo_x0_points, gradient)
 
             x_updated = self.step(x=self.x, grad=gradient)
