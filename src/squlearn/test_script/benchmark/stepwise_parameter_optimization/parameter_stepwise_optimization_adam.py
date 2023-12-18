@@ -334,7 +334,7 @@ def pqc_8_parameter():
     return QiskitEncodingCircuit(qc)
 
 
-for num_parameters in range(8):
+for num_parameters in [3]:
     if num_parameters == 0:
         pqc = pqc_1_parameter()
     elif num_parameters == 1:
@@ -352,6 +352,8 @@ for num_parameters in range(8):
     elif num_parameters == 7:
         pqc = pqc_8_parameter()
 
+    pqc.draw()
+
     nqubits = 4
     op = SinglePauli(nqubits, qubit=0, parameterized=True)
 
@@ -360,17 +362,14 @@ for num_parameters in range(8):
     param_ini = np.random.rand(pqc.num_parameters)
     # Initialize parameters of the observable as ones
     param_op_ini = np.ones(op.num_parameters)
-    x0 = [[i * 0.02] for i in range(15)]
-    optimizer_options = {"bo_aqc_func": "EI", "bo_aqc_optimizer": "lbfgs", "bo_bounds": [(0.0, 0.3)],
-                         "log_file": f"sglbo_params_{num_parameters + 1}.log",
-                         "bo_n_calls": 30, "bo_x0_points": x0, "maxiter": 100, "bo_bounds_fac": 0.1}
+
 
     qnn_simulator = QNNRegressor(
         pqc,
         op,
         Executor("statevector_simulator"),
         SquaredLoss(),
-        SGLBO(optimizer_options),
+        Adam({"lr": 0.035, "log_file": f"adam_params_{num_parameters + 2}_2.log", "maxiter": 500}),
         param_ini,
         param_op_ini=param_op_ini,
         opt_param_op=True,  # Keine Observablen optimierung

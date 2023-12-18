@@ -334,7 +334,7 @@ def pqc_8_parameter():
     return QiskitEncodingCircuit(qc)
 
 
-for num_parameters in range(8):
+for num_parameters in [7]:
     if num_parameters == 0:
         pqc = pqc_1_parameter()
     elif num_parameters == 1:
@@ -360,14 +360,19 @@ for num_parameters in range(8):
     param_ini = np.random.rand(pqc.num_parameters)
     # Initialize parameters of the observable as ones
     param_op_ini = np.ones(op.num_parameters)
-
+    #x0 = [[i * 0.02] for i in range(10)]
+    x0 = [[1e-4], [2e-4], [3e-4], [4e-4], [5e-4], [6e-4], [7e-4], [8e-4], [9e-4], [1e-3], [2e-3], [3e-3], [4e-3], [5e-3],
+          [6e-3], [7e-3], [8e-3], [9e-3], [1e-2], [2e-2], [3e-2], [4e-2], [5e-2], [6e-2], [7e-2], [8e-2], [9e-2], [1e-1], [2e-1]]
+    optimizer_options = {"bo_aqc_func": "EI", "bo_aqc_optimizer": "lbfgs", "bo_bounds": [(0, 0.3)],
+                         "log_file": f"sglbo_params_{num_parameters + 2}_2.log",
+                         "bo_n_calls": 60, "bo_x0_points": x0, "maxiter": 500}
 
     qnn_simulator = QNNRegressor(
         pqc,
         op,
         Executor("statevector_simulator"),
         SquaredLoss(),
-        Adam({"lr": 0.2, "log_file": f"adam_params_{num_parameters + 1}.log"}),
+        SGLBO(optimizer_options),
         param_ini,
         param_op_ini=param_op_ini,
         opt_param_op=True,  # Keine Observablen optimierung
