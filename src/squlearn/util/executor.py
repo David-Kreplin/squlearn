@@ -345,6 +345,9 @@ class Executor:
         self.set_shots(shots)
         self._inital_num_shots = self.get_shots()
 
+        # inital total shot counter
+        self._total_shots = 0
+
         if self._caching is None:
             self._caching = self._remote
 
@@ -731,6 +734,17 @@ class Executor:
         else:
             hash_value = None
 
+        # Update total number of shots
+        number_of_shots = self.get_shots()
+        if "shots" in kwargs:
+            number_of_shots = kwargs["shots"]
+        if number_of_shots is None:
+            number_of_shots = 0
+        if isinstance(circuits, list):
+            self._total_shots += len(circuits) * number_of_shots
+        else:
+            self._total_shots += number_of_shots
+
         return self._primitive_run(run, "estimator", hash_value)
 
     def sampler_run(self, circuits, parameter_values=None, **kwargs: Any) -> Job:
@@ -774,6 +788,17 @@ class Executor:
         else:
             hash_value = None
 
+        # Update total number of shots
+        number_of_shots = self.get_shots()
+        if "shots" in kwargs:
+            number_of_shots = kwargs["shots"]
+        if number_of_shots is None:
+            number_of_shots = 0
+        if isinstance(circuits, list):
+            self._total_shots += len(circuits) * number_of_shots
+        else:
+            self._total_shots += number_of_shots
+
         return self._primitive_run(run, "sampler", hash_value)
 
     def get_estimator(self):
@@ -812,6 +837,18 @@ class Executor:
         Return:
             The Qiskit job object from the run.
         """
+
+        # Update total number of shots
+        number_of_shots = self.get_shots()
+        if "shots" in options:
+            number_of_shots = options["shots"]
+        if number_of_shots is None:
+            number_of_shots = 0
+        if isinstance(run_input, list):
+            self._total_shots += len(run_input) * number_of_shots
+        else:
+            self._total_shots += number_of_shots
+
         return self.backend.run(run_input, **options)
 
     def set_shots(self, num_shots: Union[int, None]) -> None:
@@ -952,6 +989,15 @@ class Executor:
     def shots(self) -> int:
         """Number of shots in the execution."""
         return self.get_shots()
+
+    @property
+    def total_shots(self) -> int:
+        """Total number of shots that have been executed."""
+        return self._total_shots
+
+    def reset_total_shots(self) -> None:
+        """Resets the total number of shots to zero."""
+        self._total_shots = 0
 
     def create_session(self):
         """Creates a new session, is called automatically."""
