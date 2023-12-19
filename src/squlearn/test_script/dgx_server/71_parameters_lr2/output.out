@@ -1,0 +1,502 @@
+WARNING: Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.
+fit:   0% 0/500 [00:00<?, ?it/s]total_shots 0
+fit:   0% 1/500 [00:23<3:17:10, 23.71s/it]total_shots 0
+fit:   0% 2/500 [00:44<3:02:11, 21.95s/it]total_shots 0
+fit:   1% 3/500 [01:05<2:56:55, 21.36s/it]total_shots 0
+fit:   1% 4/500 [01:27<2:58:34, 21.60s/it]total_shots 0
+fit:   1% 5/500 [01:47<2:55:15, 21.24s/it]total_shots 0
+fit:   1% 6/500 [02:08<2:53:21, 21.06s/it]total_shots 0
+fit:   1% 7/500 [02:29<2:53:50, 21.16s/it]total_shots 0
+fit:   2% 8/500 [02:50<2:53:30, 21.16s/it]total_shots 0
+fit:   2% 9/500 [03:12<2:53:15, 21.17s/it]total_shots 0
+fit:   2% 10/500 [03:32<2:51:48, 21.04s/it]total_shots 0
+fit:   2% 11/500 [03:54<2:53:22, 21.27s/it]total_shots 0
+fit:   2% 12/500 [04:15<2:52:44, 21.24s/it]total_shots 0
+fit:   3% 13/500 [04:36<2:51:22, 21.11s/it]total_shots 0
+fit:   3% 14/500 [04:57<2:49:58, 20.98s/it]total_shots 0
+fit:   3% 15/500 [05:19<2:53:09, 21.42s/it]total_shots 0
+fit:   3% 16/500 [05:41<2:53:23, 21.50s/it]total_shots 0
+fit:   3% 17/500 [06:03<2:53:45, 21.58s/it]total_shots 0
+fit:   4% 18/500 [06:24<2:52:03, 21.42s/it]total_shots 0
+fit:   4% 19/500 [06:45<2:50:57, 21.33s/it]total_shots 0
+fit:   4% 20/500 [07:06<2:49:54, 21.24s/it]total_shots 0
+fit:   4% 21/500 [07:27<2:48:45, 21.14s/it]total_shots 0
+fit:   4% 22/500 [07:49<2:50:07, 21.35s/it]total_shots 0
+fit:   5% 23/500 [08:09<2:48:02, 21.14s/it]total_shots 0
+fit:   5% 24/500 [08:31<2:50:05, 21.44s/it]total_shots 0
+fit:   5% 25/500 [08:52<2:47:52, 21.20s/it]total_shots 0
+fit:   5% 26/500 [09:13<2:46:43, 21.10s/it]total_shots 0
+fit:   5% 27/500 [09:35<2:49:38, 21.52s/it]total_shots 0
+fit:   6% 28/500 [09:57<2:48:47, 21.46s/it]total_shots 0
+fit:   6% 29/500 [10:18<2:47:23, 21.32s/it]total_shots 0
+fit:   6% 30/500 [10:41<2:51:09, 21.85s/it]total_shots 0
+fit:   6% 31/500 [11:04<2:53:48, 22.23s/it]total_shots 0
+fit:   6% 32/500 [11:25<2:49:39, 21.75s/it]total_shots 0
+fit:   7% 33/500 [11:46<2:49:23, 21.76s/it]total_shots 0
+fit:   7% 34/500 [12:07<2:46:55, 21.49s/it]total_shots 0
+fit:   7% 35/500 [12:31<2:50:53, 22.05s/it]total_shots 0
+fit:   7% 36/500 [12:54<2:54:27, 22.56s/it]total_shots 0
+fit:   7% 37/500 [13:15<2:49:23, 21.95s/it]total_shots 0
+fit:   8% 38/500 [13:36<2:47:15, 21.72s/it]total_shots 0
+fit:   8% 39/500 [13:58<2:46:54, 21.72s/it]total_shots 0
+fit:   8% 40/500 [14:19<2:44:25, 21.45s/it]total_shots 0
+fit:   8% 41/500 [14:42<2:48:28, 22.02s/it]total_shots 0
+fit:   8% 42/500 [15:05<2:51:06, 22.42s/it]total_shots 0
+fit:   9% 43/500 [15:27<2:49:50, 22.30s/it]total_shots 0
+fit:   9% 44/500 [15:50<2:50:21, 22.42s/it]total_shots 0
+fit:   9% 45/500 [16:11<2:47:48, 22.13s/it]total_shots 0
+fit:   9% 46/500 [16:33<2:47:08, 22.09s/it]total_shots 0
+fit:   9% 47/500 [16:56<2:46:55, 22.11s/it]total_shots 0
+fit:  10% 48/500 [17:18<2:46:32, 22.11s/it]total_shots 0
+fit:  10% 49/500 [17:40<2:47:35, 22.30s/it]total_shots 0
+fit:  10% 50/500 [18:02<2:45:12, 22.03s/it]total_shots 0
+fit:  10% 51/500 [18:27<2:51:56, 22.98s/it]total_shots 0
+fit:  10% 52/500 [18:51<2:52:49, 23.15s/it]total_shots 0
+fit:  11% 53/500 [19:12<2:48:46, 22.65s/it]total_shots 0
+fit:  11% 54/500 [19:35<2:48:24, 22.66s/it]total_shots 0
+fit:  11% 55/500 [19:56<2:44:20, 22.16s/it]total_shots 0
+fit:  11% 56/500 [20:17<2:42:27, 21.95s/it]total_shots 0
+fit:  11% 57/500 [20:39<2:41:00, 21.81s/it]total_shots 0
+fit:  12% 58/500 [21:01<2:42:45, 22.09s/it]total_shots 0
+fit:  12% 59/500 [21:23<2:42:03, 22.05s/it]total_shots 0
+fit:  12% 60/500 [21:46<2:42:13, 22.12s/it]total_shots 0
+fit:  12% 61/500 [22:09<2:43:51, 22.40s/it]total_shots 0
+fit:  12% 62/500 [22:30<2:41:26, 22.12s/it]total_shots 0
+fit:  13% 63/500 [22:52<2:40:22, 22.02s/it]total_shots 0
+fit:  13% 64/500 [23:14<2:39:08, 21.90s/it]total_shots 0
+fit:  13% 65/500 [23:36<2:39:13, 21.96s/it]total_shots 0
+fit:  13% 66/500 [23:57<2:37:05, 21.72s/it]total_shots 0
+fit:  13% 67/500 [24:19<2:37:30, 21.83s/it]total_shots 0
+fit:  14% 68/500 [24:43<2:41:45, 22.47s/it]total_shots 0
+fit:  14% 69/500 [25:05<2:39:42, 22.23s/it]total_shots 0
+fit:  14% 70/500 [25:26<2:38:31, 22.12s/it]total_shots 0
+fit:  14% 71/500 [25:48<2:37:52, 22.08s/it]total_shots 0
+fit:  14% 72/500 [26:11<2:39:00, 22.29s/it]total_shots 0
+fit:  15% 73/500 [26:33<2:37:26, 22.12s/it]total_shots 0
+fit:  15% 74/500 [26:55<2:36:57, 22.11s/it]total_shots 0
+fit:  15% 75/500 [27:17<2:35:57, 22.02s/it]total_shots 0
+fit:  15% 76/500 [27:38<2:33:13, 21.68s/it]total_shots 0
+fit:  15% 77/500 [28:00<2:33:26, 21.76s/it]total_shots 0
+fit:  16% 78/500 [28:22<2:33:54, 21.88s/it]total_shots 0
+fit:  16% 79/500 [28:44<2:33:26, 21.87s/it]total_shots 0
+fit:  16% 80/500 [29:06<2:34:53, 22.13s/it]total_shots 0
+fit:  16% 81/500 [29:30<2:36:53, 22.47s/it]total_shots 0
+fit:  16% 82/500 [29:51<2:35:05, 22.26s/it]total_shots 0
+fit:  17% 83/500 [30:13<2:32:49, 21.99s/it]total_shots 0
+fit:  17% 84/500 [30:34<2:31:42, 21.88s/it]total_shots 0
+fit:  17% 85/500 [30:55<2:29:29, 21.61s/it]total_shots 0
+fit:  17% 86/500 [31:18<2:30:36, 21.83s/it]total_shots 0
+fit:  17% 87/500 [31:38<2:27:35, 21.44s/it]total_shots 0
+fit:  18% 88/500 [32:01<2:29:10, 21.72s/it]total_shots 0
+fit:  18% 89/500 [32:22<2:29:00, 21.75s/it]total_shots 0
+fit:  18% 90/500 [32:43<2:26:12, 21.40s/it]total_shots 0
+fit:  18% 91/500 [33:11<2:40:04, 23.48s/it]total_shots 0
+fit:  18% 92/500 [34:22<4:15:47, 37.62s/it]total_shots 0
+fit:  19% 93/500 [35:40<5:36:42, 49.64s/it]total_shots 0
+fit:  19% 94/500 [36:41<6:00:24, 53.26s/it]total_shots 0
+fit:  19% 95/500 [37:28<5:46:54, 51.39s/it]total_shots 0
+fit:  19% 96/500 [38:04<5:13:07, 46.50s/it]total_shots 0
+fit:  19% 97/500 [38:52<5:16:31, 47.13s/it]total_shots 0
+fit:  20% 98/500 [40:01<5:59:09, 53.61s/it]total_shots 0
+fit:  20% 99/500 [41:12<6:33:17, 58.85s/it]total_shots 0
+fit:  20% 100/500 [42:10<6:30:07, 58.52s/it]total_shots 0
+fit:  20% 101/500 [42:31<5:15:04, 47.38s/it]total_shots 0
+fit:  20% 102/500 [42:52<4:21:38, 39.44s/it]total_shots 0
+fit:  21% 103/500 [43:16<3:49:38, 34.71s/it]total_shots 0
+fit:  21% 104/500 [43:38<3:24:52, 31.04s/it]total_shots 0
+fit:  21% 105/500 [44:00<3:05:21, 28.16s/it]total_shots 0
+fit:  21% 106/500 [44:22<2:53:46, 26.46s/it]total_shots 0
+fit:  21% 107/500 [44:44<2:43:50, 25.01s/it]total_shots 0
+fit:  22% 108/500 [45:04<2:35:09, 23.75s/it]total_shots 0
+fit:  22% 109/500 [45:25<2:28:24, 22.77s/it]total_shots 0
+fit:  22% 110/500 [45:45<2:23:22, 22.06s/it]total_shots 0
+fit:  22% 111/500 [46:06<2:19:27, 21.51s/it]total_shots 0
+fit:  22% 112/500 [46:26<2:16:53, 21.17s/it]total_shots 0
+fit:  23% 113/500 [46:46<2:14:42, 20.88s/it]total_shots 0
+fit:  23% 114/500 [47:08<2:15:29, 21.06s/it]total_shots 0
+fit:  23% 115/500 [47:28<2:13:20, 20.78s/it]total_shots 0
+fit:  23% 116/500 [47:49<2:12:53, 20.76s/it]total_shots 0
+fit:  23% 117/500 [48:09<2:11:27, 20.59s/it]total_shots 0
+fit:  24% 118/500 [48:29<2:11:08, 20.60s/it]total_shots 0
+fit:  24% 119/500 [48:50<2:10:19, 20.52s/it]total_shots 0
+fit:  24% 120/500 [49:11<2:12:08, 20.87s/it]total_shots 0
+fit:  24% 121/500 [49:32<2:11:39, 20.84s/it]total_shots 0
+fit:  24% 122/500 [49:53<2:11:10, 20.82s/it]total_shots 0
+fit:  25% 123/500 [50:14<2:11:29, 20.93s/it]total_shots 0
+fit:  25% 124/500 [50:35<2:11:47, 21.03s/it]total_shots 0
+fit:  25% 125/500 [50:59<2:16:44, 21.88s/it]total_shots 0
+fit:  25% 126/500 [51:20<2:15:15, 21.70s/it]total_shots 0
+fit:  25% 127/500 [51:43<2:16:02, 21.88s/it]total_shots 0
+fit:  26% 128/500 [52:04<2:15:11, 21.81s/it]total_shots 0
+fit:  26% 129/500 [52:25<2:12:31, 21.43s/it]total_shots 0
+fit:  26% 130/500 [52:45<2:10:23, 21.15s/it]total_shots 0
+fit:  26% 131/500 [53:07<2:10:53, 21.28s/it]total_shots 0
+fit:  26% 132/500 [53:28<2:10:39, 21.30s/it]total_shots 0
+fit:  27% 133/500 [53:49<2:09:10, 21.12s/it]total_shots 0
+fit:  27% 134/500 [54:10<2:07:48, 20.95s/it]total_shots 0
+fit:  27% 135/500 [54:32<2:09:31, 21.29s/it]total_shots 0
+fit:  27% 136/500 [54:53<2:09:51, 21.40s/it]total_shots 0
+fit:  27% 137/500 [55:16<2:11:59, 21.82s/it]total_shots 0
+fit:  28% 138/500 [55:38<2:10:45, 21.67s/it]total_shots 0
+fit:  28% 139/500 [55:59<2:10:45, 21.73s/it]total_shots 0
+fit:  28% 140/500 [56:22<2:11:10, 21.86s/it]total_shots 0
+fit:  28% 141/500 [56:43<2:10:30, 21.81s/it]total_shots 0
+fit:  28% 142/500 [57:05<2:10:48, 21.92s/it]total_shots 0
+fit:  29% 143/500 [57:27<2:10:39, 21.96s/it]total_shots 0
+fit:  29% 144/500 [57:51<2:12:42, 22.37s/it]total_shots 0
+fit:  29% 145/500 [58:13<2:11:08, 22.17s/it]total_shots 0
+fit:  29% 146/500 [58:33<2:08:11, 21.73s/it]total_shots 0
+fit:  29% 147/500 [58:54<2:05:29, 21.33s/it]total_shots 0
+fit:  30% 148/500 [59:15<2:04:26, 21.21s/it]total_shots 0
+fit:  30% 149/500 [59:35<2:02:35, 20.96s/it]total_shots 0
+fit:  30% 150/500 [59:56<2:02:44, 21.04s/it]total_shots 0
+fit:  30% 151/500 [1:00:16<2:01:10, 20.83s/it]total_shots 0
+fit:  30% 152/500 [1:00:38<2:02:10, 21.06s/it]total_shots 0
+fit:  31% 153/500 [1:00:59<2:01:10, 20.95s/it]total_shots 0
+fit:  31% 154/500 [1:01:21<2:03:10, 21.36s/it]total_shots 0
+fit:  31% 155/500 [1:01:41<2:00:42, 20.99s/it]total_shots 0
+fit:  31% 156/500 [1:02:02<2:00:09, 20.96s/it]total_shots 0
+fit:  31% 157/500 [1:02:24<2:01:02, 21.17s/it]total_shots 0
+fit:  32% 158/500 [1:02:45<2:00:00, 21.05s/it]total_shots 0
+fit:  32% 159/500 [1:03:05<1:58:28, 20.85s/it]total_shots 0
+fit:  32% 160/500 [1:03:26<1:57:47, 20.79s/it]total_shots 0
+fit:  32% 161/500 [1:03:46<1:57:12, 20.74s/it]total_shots 0
+fit:  32% 162/500 [1:04:07<1:56:50, 20.74s/it]total_shots 0
+fit:  33% 163/500 [1:04:28<1:57:26, 20.91s/it]total_shots 0
+fit:  33% 164/500 [1:04:51<1:59:28, 21.34s/it]total_shots 0
+fit:  33% 165/500 [1:05:12<1:58:40, 21.25s/it]total_shots 0
+fit:  33% 166/500 [1:05:34<1:59:41, 21.50s/it]total_shots 0
+fit:  33% 167/500 [1:05:54<1:57:05, 21.10s/it]total_shots 0
+fit:  34% 168/500 [1:06:15<1:56:34, 21.07s/it]total_shots 0
+fit:  34% 169/500 [1:06:36<1:55:36, 20.96s/it]total_shots 0
+fit:  34% 170/500 [1:06:57<1:56:24, 21.17s/it]total_shots 0
+fit:  34% 171/500 [1:07:18<1:55:20, 21.04s/it]total_shots 0
+fit:  34% 172/500 [1:07:38<1:54:01, 20.86s/it]total_shots 0
+fit:  35% 173/500 [1:07:59<1:53:31, 20.83s/it]total_shots 0
+fit:  35% 174/500 [1:08:20<1:52:31, 20.71s/it]total_shots 0
+fit:  35% 175/500 [1:08:40<1:52:25, 20.76s/it]total_shots 0
+fit:  35% 176/500 [1:09:01<1:51:44, 20.69s/it]total_shots 0
+fit:  35% 177/500 [1:09:23<1:53:10, 21.02s/it]total_shots 0
+fit:  36% 178/500 [1:09:43<1:51:55, 20.86s/it]total_shots 0
+fit:  36% 179/500 [1:10:04<1:51:21, 20.82s/it]total_shots 0
+fit:  36% 180/500 [1:10:25<1:50:39, 20.75s/it]total_shots 0
+fit:  36% 181/500 [1:10:46<1:50:38, 20.81s/it]total_shots 0
+fit:  36% 182/500 [1:11:07<1:51:08, 20.97s/it]total_shots 0
+fit:  37% 183/500 [1:11:29<1:52:44, 21.34s/it]total_shots 0
+fit:  37% 184/500 [1:11:49<1:50:52, 21.05s/it]total_shots 0
+fit:  37% 185/500 [1:12:11<1:51:52, 21.31s/it]total_shots 0
+fit:  37% 186/500 [1:12:32<1:50:38, 21.14s/it]total_shots 0
+fit:  37% 187/500 [1:12:53<1:49:55, 21.07s/it]total_shots 0
+fit:  38% 188/500 [1:13:13<1:48:35, 20.88s/it]total_shots 0
+fit:  38% 189/500 [1:13:35<1:48:52, 21.00s/it]total_shots 0
+fit:  38% 190/500 [1:13:55<1:47:43, 20.85s/it]total_shots 0
+fit:  38% 191/500 [1:14:16<1:47:09, 20.81s/it]total_shots 0
+fit:  38% 192/500 [1:14:36<1:46:00, 20.65s/it]total_shots 0
+fit:  39% 193/500 [1:14:59<1:48:38, 21.23s/it]total_shots 0
+fit:  39% 194/500 [1:15:20<1:47:55, 21.16s/it]total_shots 0
+fit:  39% 195/500 [1:15:41<1:46:53, 21.03s/it]total_shots 0
+fit:  39% 196/500 [1:16:01<1:45:57, 20.91s/it]total_shots 0
+fit:  39% 197/500 [1:16:22<1:45:11, 20.83s/it]total_shots 0
+fit:  40% 198/500 [1:16:42<1:44:01, 20.67s/it]total_shots 0
+fit:  40% 199/500 [1:17:03<1:44:28, 20.83s/it]total_shots 0
+fit:  40% 200/500 [1:17:23<1:43:00, 20.60s/it]total_shots 0
+fit:  40% 201/500 [1:17:44<1:43:08, 20.70s/it]total_shots 0
+fit:  40% 202/500 [1:18:05<1:42:47, 20.70s/it]total_shots 0
+fit:  41% 203/500 [1:18:26<1:43:35, 20.93s/it]total_shots 0
+fit:  41% 204/500 [1:18:47<1:42:15, 20.73s/it]total_shots 0
+fit:  41% 205/500 [1:19:07<1:41:38, 20.67s/it]total_shots 0
+fit:  41% 206/500 [1:19:28<1:41:20, 20.68s/it]total_shots 0
+fit:  41% 207/500 [1:19:49<1:42:02, 20.90s/it]total_shots 0
+fit:  42% 208/500 [1:20:10<1:41:37, 20.88s/it]total_shots 0
+fit:  42% 209/500 [1:20:31<1:40:50, 20.79s/it]total_shots 0
+fit:  42% 210/500 [1:20:52<1:40:30, 20.79s/it]total_shots 0
+fit:  42% 211/500 [1:21:12<1:39:29, 20.65s/it]total_shots 0
+fit:  42% 212/500 [1:21:33<1:40:07, 20.86s/it]total_shots 0
+fit:  43% 213/500 [1:21:54<1:39:34, 20.82s/it]total_shots 0
+fit:  43% 214/500 [1:22:15<1:39:27, 20.87s/it]total_shots 0
+fit:  43% 215/500 [1:22:35<1:38:33, 20.75s/it]total_shots 0
+fit:  43% 216/500 [1:22:57<1:39:28, 21.01s/it]total_shots 0
+fit:  43% 217/500 [1:23:18<1:38:38, 20.91s/it]total_shots 0
+fit:  44% 218/500 [1:23:39<1:38:34, 20.97s/it]total_shots 0
+fit:  44% 219/500 [1:24:00<1:38:15, 20.98s/it]total_shots 0
+fit:  44% 220/500 [1:24:22<1:39:07, 21.24s/it]total_shots 0
+fit:  44% 221/500 [1:24:43<1:38:17, 21.14s/it]total_shots 0
+fit:  44% 222/500 [1:25:04<1:38:31, 21.27s/it]total_shots 0
+fit:  45% 223/500 [1:25:25<1:37:49, 21.19s/it]total_shots 0
+fit:  45% 224/500 [1:25:46<1:36:58, 21.08s/it]total_shots 0
+fit:  45% 225/500 [1:26:07<1:36:25, 21.04s/it]total_shots 0
+fit:  45% 226/500 [1:26:27<1:35:22, 20.88s/it]total_shots 0
+fit:  45% 227/500 [1:26:48<1:34:46, 20.83s/it]total_shots 0
+fit:  46% 228/500 [1:27:10<1:35:12, 21.00s/it]total_shots 0
+fit:  46% 229/500 [1:27:31<1:34:43, 20.97s/it]total_shots 0
+fit:  46% 230/500 [1:27:51<1:33:53, 20.86s/it]total_shots 0
+fit:  46% 231/500 [1:28:12<1:33:47, 20.92s/it]total_shots 0
+fit:  46% 232/500 [1:28:33<1:33:09, 20.86s/it]total_shots 0
+fit:  47% 233/500 [1:28:53<1:32:10, 20.71s/it]total_shots 0
+fit:  47% 234/500 [1:29:15<1:32:53, 20.95s/it]total_shots 0
+fit:  47% 235/500 [1:29:36<1:32:34, 20.96s/it]total_shots 0
+fit:  47% 236/500 [1:29:56<1:31:51, 20.88s/it]total_shots 0
+fit:  47% 237/500 [1:30:17<1:31:16, 20.82s/it]total_shots 0
+fit:  48% 238/500 [1:30:38<1:30:40, 20.77s/it]total_shots 0
+fit:  48% 239/500 [1:30:59<1:30:50, 20.88s/it]total_shots 0
+fit:  48% 240/500 [1:31:19<1:29:33, 20.67s/it]total_shots 0
+fit:  48% 241/500 [1:31:40<1:29:37, 20.76s/it]total_shots 0
+fit:  48% 242/500 [1:32:01<1:29:46, 20.88s/it]total_shots 0
+fit:  49% 243/500 [1:32:22<1:28:59, 20.78s/it]total_shots 0
+fit:  49% 244/500 [1:32:43<1:29:04, 20.88s/it]total_shots 0
+fit:  49% 245/500 [1:33:04<1:29:08, 20.98s/it]total_shots 0
+fit:  49% 246/500 [1:33:25<1:28:45, 20.97s/it]total_shots 0
+fit:  49% 247/500 [1:33:46<1:28:20, 20.95s/it]total_shots 0
+fit:  50% 248/500 [1:34:06<1:27:26, 20.82s/it]total_shots 0
+fit:  50% 249/500 [1:34:27<1:27:13, 20.85s/it]total_shots 0
+fit:  50% 250/500 [1:34:48<1:26:50, 20.84s/it]total_shots 0
+fit:  50% 251/500 [1:35:09<1:26:45, 20.91s/it]total_shots 0
+fit:  50% 252/500 [1:35:30<1:25:57, 20.79s/it]total_shots 0
+fit:  51% 253/500 [1:35:51<1:25:39, 20.81s/it]total_shots 0
+fit:  51% 254/500 [1:36:11<1:25:08, 20.76s/it]total_shots 0
+fit:  51% 255/500 [1:36:32<1:24:39, 20.73s/it]total_shots 0
+fit:  51% 256/500 [1:36:53<1:24:09, 20.70s/it]total_shots 0
+fit:  51% 257/500 [1:37:13<1:23:48, 20.69s/it]total_shots 0
+fit:  52% 258/500 [1:37:34<1:23:44, 20.76s/it]total_shots 0
+fit:  52% 259/500 [1:37:55<1:23:20, 20.75s/it]total_shots 0
+fit:  52% 260/500 [1:38:16<1:23:31, 20.88s/it]total_shots 0
+fit:  52% 261/500 [1:38:37<1:22:54, 20.81s/it]total_shots 0
+fit:  52% 262/500 [1:38:58<1:22:33, 20.81s/it]total_shots 0
+fit:  53% 263/500 [1:39:19<1:22:48, 20.97s/it]total_shots 0
+fit:  53% 264/500 [1:39:40<1:22:19, 20.93s/it]total_shots 0
+fit:  53% 265/500 [1:40:00<1:21:28, 20.80s/it]total_shots 0
+fit:  53% 266/500 [1:40:21<1:20:48, 20.72s/it]total_shots 0
+fit:  53% 267/500 [1:40:42<1:20:47, 20.80s/it]total_shots 0
+fit:  54% 268/500 [1:41:02<1:19:50, 20.65s/it]total_shots 0
+fit:  54% 269/500 [1:41:23<1:19:31, 20.66s/it]total_shots 0
+fit:  54% 270/500 [1:41:45<1:21:14, 21.19s/it]total_shots 0
+fit:  54% 271/500 [1:42:06<1:20:36, 21.12s/it]total_shots 0
+fit:  54% 272/500 [1:42:28<1:21:20, 21.40s/it]total_shots 0
+fit:  55% 273/500 [1:42:48<1:19:45, 21.08s/it]total_shots 0
+fit:  55% 274/500 [1:43:09<1:19:12, 21.03s/it]total_shots 0
+fit:  55% 275/500 [1:43:30<1:18:27, 20.92s/it]total_shots 0
+fit:  55% 276/500 [1:43:51<1:18:09, 20.94s/it]total_shots 0
+fit:  55% 277/500 [1:44:13<1:19:08, 21.30s/it]total_shots 0
+fit:  56% 278/500 [1:44:33<1:17:39, 20.99s/it]total_shots 0
+fit:  56% 279/500 [1:44:55<1:17:31, 21.05s/it]total_shots 0
+fit:  56% 280/500 [1:45:15<1:16:47, 20.94s/it]total_shots 0
+fit:  56% 281/500 [1:45:36<1:16:03, 20.84s/it]total_shots 0
+fit:  56% 282/500 [1:45:57<1:16:21, 21.02s/it]total_shots 0
+fit:  57% 283/500 [1:46:18<1:15:58, 21.01s/it]total_shots 0
+fit:  57% 284/500 [1:46:39<1:15:29, 20.97s/it]total_shots 0
+fit:  57% 285/500 [1:47:00<1:14:44, 20.86s/it]total_shots 0
+fit:  57% 286/500 [1:47:21<1:14:32, 20.90s/it]total_shots 0
+fit:  57% 287/500 [1:47:42<1:14:10, 20.90s/it]total_shots 0
+fit:  58% 288/500 [1:48:02<1:13:15, 20.73s/it]total_shots 0
+fit:  58% 289/500 [1:48:24<1:14:21, 21.14s/it]total_shots 0
+fit:  58% 290/500 [1:48:45<1:13:37, 21.04s/it]total_shots 0
+fit:  58% 291/500 [1:49:05<1:12:42, 20.87s/it]total_shots 0
+fit:  58% 292/500 [1:49:26<1:11:56, 20.75s/it]total_shots 0
+fit:  59% 293/500 [1:49:48<1:12:55, 21.14s/it]total_shots 0
+fit:  59% 294/500 [1:50:08<1:11:56, 20.95s/it]total_shots 0
+fit:  59% 295/500 [1:50:29<1:11:22, 20.89s/it]total_shots 0
+fit:  59% 296/500 [1:50:50<1:11:01, 20.89s/it]total_shots 0
+fit:  59% 297/500 [1:51:11<1:10:57, 20.97s/it]total_shots 0
+fit:  60% 298/500 [1:51:32<1:10:33, 20.96s/it]total_shots 0
+fit:  60% 299/500 [1:51:54<1:11:10, 21.25s/it]total_shots 0
+fit:  60% 300/500 [1:52:15<1:10:14, 21.07s/it]total_shots 0
+fit:  60% 301/500 [1:52:36<1:09:40, 21.01s/it]total_shots 0
+fit:  60% 302/500 [1:52:57<1:09:38, 21.11s/it]total_shots 0
+fit:  61% 303/500 [1:53:18<1:09:39, 21.21s/it]total_shots 0
+fit:  61% 304/500 [1:53:40<1:10:03, 21.44s/it]total_shots 0
+fit:  61% 305/500 [1:54:02<1:09:51, 21.49s/it]total_shots 0
+fit:  61% 306/500 [1:54:24<1:09:30, 21.50s/it]total_shots 0
+fit:  61% 307/500 [1:54:45<1:09:15, 21.53s/it]total_shots 0
+fit:  62% 308/500 [1:55:06<1:08:37, 21.45s/it]total_shots 0
+fit:  62% 309/500 [1:55:27<1:07:28, 21.19s/it]total_shots 0
+fit:  62% 310/500 [1:55:48<1:06:53, 21.12s/it]total_shots 0
+fit:  62% 311/500 [1:56:09<1:06:20, 21.06s/it]total_shots 0
+fit:  62% 312/500 [1:56:31<1:06:33, 21.24s/it]total_shots 0
+fit:  63% 313/500 [1:56:51<1:05:45, 21.10s/it]total_shots 0
+fit:  63% 314/500 [1:57:12<1:05:15, 21.05s/it]total_shots 0
+fit:  63% 315/500 [1:57:33<1:04:32, 20.94s/it]total_shots 0
+fit:  63% 316/500 [1:57:54<1:04:34, 21.06s/it]total_shots 0
+fit:  63% 317/500 [1:58:16<1:05:00, 21.31s/it]total_shots 0
+fit:  64% 318/500 [1:58:37<1:04:14, 21.18s/it]total_shots 0
+fit:  64% 319/500 [1:58:58<1:03:19, 20.99s/it]total_shots 0
+fit:  64% 320/500 [1:59:18<1:02:30, 20.84s/it]total_shots 0
+fit:  64% 321/500 [1:59:39<1:02:06, 20.82s/it]total_shots 0
+fit:  64% 322/500 [2:00:01<1:03:08, 21.28s/it]total_shots 0
+fit:  65% 323/500 [2:00:23<1:03:15, 21.44s/it]total_shots 0
+fit:  65% 324/500 [2:00:44<1:02:37, 21.35s/it]total_shots 0
+fit:  65% 325/500 [2:01:05<1:02:07, 21.30s/it]total_shots 0
+fit:  65% 326/500 [2:01:26<1:01:22, 21.17s/it]total_shots 0
+fit:  65% 327/500 [2:01:47<1:00:53, 21.12s/it]total_shots 0
+fit:  66% 328/500 [2:02:08<1:00:33, 21.12s/it]total_shots 0
+fit:  66% 329/500 [2:02:29<59:31, 20.89s/it]  total_shots 0
+fit:  66% 330/500 [2:02:51<1:00:27, 21.34s/it]total_shots 0
+fit:  66% 331/500 [2:03:12<1:00:04, 21.33s/it]total_shots 0
+fit:  66% 332/500 [2:03:33<58:54, 21.04s/it]  total_shots 0
+fit:  67% 333/500 [2:03:55<59:44, 21.46s/it]total_shots 0
+fit:  67% 334/500 [2:04:16<59:06, 21.36s/it]total_shots 0
+fit:  67% 335/500 [2:04:38<58:38, 21.32s/it]total_shots 0
+fit:  67% 336/500 [2:04:59<58:47, 21.51s/it]total_shots 0
+fit:  67% 337/500 [2:05:21<58:40, 21.60s/it]total_shots 0
+fit:  68% 338/500 [2:05:43<58:00, 21.48s/it]total_shots 0
+fit:  68% 339/500 [2:06:04<57:35, 21.46s/it]total_shots 0
+fit:  68% 340/500 [2:06:25<56:37, 21.23s/it]total_shots 0
+fit:  68% 341/500 [2:06:47<57:22, 21.65s/it]total_shots 0
+fit:  68% 342/500 [2:07:08<56:42, 21.53s/it]total_shots 0
+fit:  69% 343/500 [2:07:31<57:03, 21.81s/it]total_shots 0
+fit:  69% 344/500 [2:07:53<56:31, 21.74s/it]total_shots 0
+fit:  69% 345/500 [2:08:14<55:53, 21.64s/it]total_shots 0
+fit:  69% 346/500 [2:08:36<56:07, 21.87s/it]total_shots 0
+fit:  69% 347/500 [2:08:57<54:48, 21.49s/it]total_shots 0
+fit:  70% 348/500 [2:09:19<54:58, 21.70s/it]total_shots 0
+fit:  70% 349/500 [2:09:40<53:56, 21.43s/it]total_shots 0
+fit:  70% 350/500 [2:10:02<53:46, 21.51s/it]total_shots 0
+fit:  70% 351/500 [2:10:23<53:09, 21.41s/it]total_shots 0
+fit:  70% 352/500 [2:10:44<52:38, 21.34s/it]total_shots 0
+fit:  71% 353/500 [2:11:05<52:02, 21.24s/it]total_shots 0
+fit:  71% 354/500 [2:11:26<51:38, 21.22s/it]total_shots 0
+fit:  71% 355/500 [2:11:47<50:47, 21.02s/it]total_shots 0
+fit:  71% 356/500 [2:12:08<50:22, 20.99s/it]total_shots 0
+fit:  71% 357/500 [2:12:29<49:55, 20.95s/it]total_shots 0
+fit:  72% 358/500 [2:12:50<50:14, 21.23s/it]total_shots 0
+fit:  72% 359/500 [2:13:12<50:22, 21.43s/it]total_shots 0
+fit:  72% 360/500 [2:13:34<49:52, 21.38s/it]total_shots 0
+fit:  72% 361/500 [2:13:54<49:00, 21.15s/it]total_shots 0
+fit:  72% 362/500 [2:14:17<50:06, 21.78s/it]total_shots 0
+fit:  73% 363/500 [2:14:39<49:54, 21.86s/it]total_shots 0
+fit:  73% 364/500 [2:15:03<50:54, 22.46s/it]total_shots 0
+fit:  73% 365/500 [2:15:25<49:55, 22.19s/it]total_shots 0
+fit:  73% 366/500 [2:15:46<48:35, 21.76s/it]total_shots 0
+fit:  73% 367/500 [2:16:07<47:57, 21.63s/it]total_shots 0
+fit:  74% 368/500 [2:16:30<48:42, 22.14s/it]total_shots 0
+fit:  74% 369/500 [2:16:52<47:53, 21.94s/it]total_shots 0
+fit:  74% 370/500 [2:17:12<46:43, 21.57s/it]total_shots 0
+fit:  74% 371/500 [2:17:34<46:12, 21.49s/it]total_shots 0
+fit:  74% 372/500 [2:17:55<45:23, 21.27s/it]total_shots 0
+fit:  75% 373/500 [2:18:15<44:31, 21.03s/it]total_shots 0
+fit:  75% 374/500 [2:18:36<43:56, 20.92s/it]total_shots 0
+fit:  75% 375/500 [2:18:57<43:43, 20.99s/it]total_shots 0
+fit:  75% 376/500 [2:19:17<42:52, 20.74s/it]total_shots 0
+fit:  75% 377/500 [2:19:38<42:33, 20.76s/it]total_shots 0
+fit:  76% 378/500 [2:19:59<42:18, 20.81s/it]total_shots 0
+fit:  76% 379/500 [2:20:20<42:03, 20.86s/it]total_shots 0
+fit:  76% 380/500 [2:20:42<42:23, 21.20s/it]total_shots 0
+fit:  76% 381/500 [2:21:03<42:06, 21.23s/it]total_shots 0
+fit:  76% 382/500 [2:21:24<41:36, 21.16s/it]total_shots 0
+fit:  77% 383/500 [2:21:45<41:01, 21.04s/it]total_shots 0
+fit:  77% 384/500 [2:22:05<40:15, 20.82s/it]total_shots 0
+fit:  77% 385/500 [2:22:27<40:43, 21.25s/it]total_shots 0
+fit:  77% 386/500 [2:22:49<40:35, 21.37s/it]total_shots 0
+fit:  77% 387/500 [2:23:11<40:26, 21.47s/it]total_shots 0
+fit:  78% 388/500 [2:23:34<41:02, 21.99s/it]total_shots 0
+fit:  78% 389/500 [2:23:55<40:01, 21.63s/it]total_shots 0
+fit:  78% 390/500 [2:24:15<39:13, 21.39s/it]total_shots 0
+fit:  78% 391/500 [2:24:36<38:37, 21.26s/it]total_shots 0
+fit:  78% 392/500 [2:24:57<38:04, 21.16s/it]total_shots 0
+fit:  79% 393/500 [2:25:18<37:30, 21.03s/it]total_shots 0
+fit:  79% 394/500 [2:25:39<37:11, 21.05s/it]total_shots 0
+fit:  79% 395/500 [2:26:00<36:30, 20.86s/it]total_shots 0
+fit:  79% 396/500 [2:26:20<36:07, 20.84s/it]total_shots 0
+fit:  79% 397/500 [2:26:43<36:41, 21.38s/it]total_shots 0
+fit:  80% 398/500 [2:27:04<36:01, 21.19s/it]total_shots 0
+fit:  80% 399/500 [2:27:24<35:12, 20.92s/it]total_shots 0
+fit:  80% 400/500 [2:27:46<35:16, 21.16s/it]total_shots 0
+fit:  80% 401/500 [2:28:06<34:39, 21.00s/it]total_shots 0
+fit:  80% 402/500 [2:28:28<34:45, 21.28s/it]total_shots 0
+fit:  81% 403/500 [2:28:49<34:05, 21.09s/it]total_shots 0
+fit:  81% 404/500 [2:29:11<34:24, 21.50s/it]total_shots 0
+fit:  81% 405/500 [2:29:34<34:18, 21.67s/it]total_shots 0
+fit:  81% 406/500 [2:29:54<33:21, 21.29s/it]total_shots 0
+fit:  81% 407/500 [2:30:15<32:47, 21.15s/it]total_shots 0
+fit:  82% 408/500 [2:30:36<32:15, 21.04s/it]total_shots 0
+fit:  82% 409/500 [2:30:56<31:43, 20.92s/it]total_shots 0
+fit:  82% 410/500 [2:31:17<31:29, 21.00s/it]total_shots 0
+fit:  82% 411/500 [2:31:38<30:46, 20.75s/it]total_shots 0
+fit:  82% 412/500 [2:31:58<30:31, 20.82s/it]total_shots 0
+fit:  83% 413/500 [2:32:19<30:05, 20.75s/it]total_shots 0
+fit:  83% 414/500 [2:32:40<29:36, 20.66s/it]total_shots 0
+fit:  83% 415/500 [2:33:01<29:28, 20.81s/it]total_shots 0
+fit:  83% 416/500 [2:33:21<29:07, 20.80s/it]total_shots 0
+fit:  83% 417/500 [2:33:42<28:46, 20.80s/it]total_shots 0
+fit:  84% 418/500 [2:34:03<28:24, 20.79s/it]total_shots 0
+fit:  84% 419/500 [2:34:24<28:04, 20.79s/it]total_shots 0
+fit:  84% 420/500 [2:34:44<27:40, 20.75s/it]total_shots 0
+fit:  84% 421/500 [2:35:05<27:17, 20.73s/it]total_shots 0
+fit:  84% 422/500 [2:35:26<26:58, 20.75s/it]total_shots 0
+fit:  85% 423/500 [2:35:47<26:52, 20.94s/it]total_shots 0
+fit:  85% 424/500 [2:36:08<26:22, 20.83s/it]total_shots 0
+fit:  85% 425/500 [2:36:29<26:13, 20.97s/it]total_shots 0
+fit:  85% 426/500 [2:36:50<25:42, 20.85s/it]total_shots 0
+fit:  85% 427/500 [2:37:11<25:26, 20.91s/it]total_shots 0
+fit:  86% 428/500 [2:37:33<25:24, 21.17s/it]total_shots 0
+fit:  86% 429/500 [2:37:53<24:56, 21.08s/it]total_shots 0
+fit:  86% 430/500 [2:38:14<24:29, 20.99s/it]total_shots 0
+fit:  86% 431/500 [2:38:37<24:41, 21.48s/it]total_shots 0
+fit:  86% 432/500 [2:38:59<24:28, 21.59s/it]total_shots 0
+fit:  87% 433/500 [2:39:19<23:42, 21.23s/it]total_shots 0
+fit:  87% 434/500 [2:39:41<23:26, 21.31s/it]total_shots 0
+fit:  87% 435/500 [2:40:04<23:50, 22.00s/it]total_shots 0
+fit:  87% 436/500 [2:40:25<23:08, 21.70s/it]total_shots 0
+fit:  87% 437/500 [2:40:46<22:22, 21.30s/it]total_shots 0
+fit:  88% 438/500 [2:41:09<22:30, 21.79s/it]total_shots 0
+fit:  88% 439/500 [2:41:29<21:48, 21.45s/it]total_shots 0
+fit:  88% 440/500 [2:41:50<21:07, 21.12s/it]total_shots 0
+fit:  88% 441/500 [2:42:10<20:36, 20.95s/it]total_shots 0
+fit:  88% 442/500 [2:42:32<20:36, 21.32s/it]total_shots 0
+fit:  89% 443/500 [2:42:54<20:17, 21.37s/it]total_shots 0
+fit:  89% 444/500 [2:43:14<19:45, 21.18s/it]total_shots 0
+fit:  89% 445/500 [2:43:36<19:36, 21.39s/it]total_shots 0
+fit:  89% 446/500 [2:43:57<19:10, 21.30s/it]total_shots 0
+fit:  89% 447/500 [2:44:21<19:25, 22.00s/it]total_shots 0
+fit:  90% 448/500 [2:44:42<18:41, 21.57s/it]total_shots 0
+fit:  90% 449/500 [2:45:04<18:27, 21.71s/it]total_shots 0
+fit:  90% 450/500 [2:45:26<18:14, 21.88s/it]total_shots 0
+fit:  90% 451/500 [2:45:47<17:36, 21.57s/it]total_shots 0
+fit:  90% 452/500 [2:46:08<17:12, 21.50s/it]total_shots 0
+fit:  91% 453/500 [2:46:30<16:51, 21.52s/it]total_shots 0
+fit:  91% 454/500 [2:46:50<16:16, 21.22s/it]total_shots 0
+fit:  91% 455/500 [2:47:11<15:44, 20.99s/it]total_shots 0
+fit:  91% 456/500 [2:47:32<15:24, 21.02s/it]total_shots 0
+fit:  91% 457/500 [2:47:53<15:06, 21.08s/it]total_shots 0
+fit:  92% 458/500 [2:48:13<14:37, 20.90s/it]total_shots 0
+fit:  92% 459/500 [2:48:34<14:16, 20.89s/it]total_shots 0
+fit:  92% 460/500 [2:48:55<13:52, 20.82s/it]total_shots 0
+fit:  92% 461/500 [2:49:18<13:56, 21.45s/it]total_shots 0
+fit:  92% 462/500 [2:49:38<13:22, 21.11s/it]total_shots 0
+fit:  93% 463/500 [2:49:59<13:02, 21.15s/it]total_shots 0
+fit:  93% 464/500 [2:50:21<12:44, 21.24s/it]total_shots 0
+fit:  93% 465/500 [2:50:44<12:40, 21.74s/it]total_shots 0
+fit:  93% 466/500 [2:51:05<12:10, 21.49s/it]total_shots 0
+fit:  93% 467/500 [2:51:26<11:43, 21.30s/it]total_shots 0
+fit:  94% 468/500 [2:51:46<11:13, 21.05s/it]total_shots 0
+fit:  94% 469/500 [2:52:07<10:48, 20.92s/it]total_shots 0
+fit:  94% 470/500 [2:52:27<10:25, 20.85s/it]total_shots 0
+fit:  94% 471/500 [2:52:50<10:20, 21.38s/it]total_shots 0
+fit:  94% 472/500 [2:53:11<09:51, 21.13s/it]total_shots 0
+fit:  95% 473/500 [2:53:33<09:38, 21.43s/it]total_shots 0
+fit:  95% 474/500 [2:53:54<09:16, 21.42s/it]total_shots 0
+fit:  95% 475/500 [2:54:15<08:49, 21.18s/it]total_shots 0
+fit:  95% 476/500 [2:54:36<08:28, 21.20s/it]total_shots 0
+fit:  95% 477/500 [2:54:57<08:06, 21.15s/it]total_shots 0
+fit:  96% 478/500 [2:55:18<07:43, 21.09s/it]total_shots 0
+fit:  96% 479/500 [2:55:39<07:22, 21.05s/it]total_shots 0
+fit:  96% 480/500 [2:56:00<07:03, 21.20s/it]total_shots 0
+fit:  96% 481/500 [2:56:21<06:37, 20.93s/it]total_shots 0
+fit:  96% 482/500 [2:56:42<06:16, 20.93s/it]total_shots 0
+fit:  97% 483/500 [2:57:02<05:53, 20.82s/it]total_shots 0
+fit:  97% 484/500 [2:57:23<05:33, 20.87s/it]total_shots 0
+fit:  97% 485/500 [2:57:44<05:12, 20.86s/it]total_shots 0
+fit:  97% 486/500 [2:58:05<04:50, 20.76s/it]total_shots 0
+fit:  97% 487/500 [2:58:26<04:32, 20.98s/it]total_shots 0
+fit:  98% 488/500 [2:58:48<04:15, 21.32s/it]total_shots 0
+fit:  98% 489/500 [2:59:11<04:00, 21.82s/it]total_shots 0
+fit:  98% 490/500 [2:59:32<03:35, 21.57s/it]total_shots 0
+fit:  98% 491/500 [2:59:54<03:15, 21.73s/it]total_shots 0
+fit:  98% 492/500 [3:00:15<02:52, 21.58s/it]total_shots 0
+fit:  99% 493/500 [3:00:37<02:31, 21.69s/it]total_shots 0
+fit:  99% 494/500 [3:01:00<02:10, 21.83s/it]total_shots 0
+fit:  99% 495/500 [3:01:22<01:49, 21.96s/it]total_shots 0
+fit:  99% 496/500 [3:01:43<01:26, 21.58s/it]total_shots 0
+fit:  99% 497/500 [3:02:04<01:04, 21.45s/it]total_shots 0
+fit: 100% 498/500 [3:02:24<00:42, 21.16s/it]total_shots 0
+fit: 100% 499/500 [3:02:46<00:21, 21.50s/it]total_shots 0
+fit: 100% 500/500 [3:03:09<00:00, 21.94s/it]

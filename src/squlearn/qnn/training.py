@@ -324,7 +324,7 @@ def train(
             iteration = None
 
         with open("sglbo_noiseless_params2.log", 'a') as datei:
-            datei.write(f'{theta[0]}    {theta[1]}\n')
+            datei.write(f'{str(theta)}\n')
 
         # Splitting theta in the arrays
         if opt_param_op:
@@ -368,7 +368,7 @@ def train(
         )
 
         with open("sglbo_noiseless_gradient2.log", 'a') as datei:
-            datei.write(f'{grad[0]}    {grad[1]}\n')
+            datei.write(f'{str(grad)}\n')
 
         print("total_shots",qnn._executor.total_shots)
 

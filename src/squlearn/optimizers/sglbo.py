@@ -169,7 +169,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         # bayesian optimization to estimate the step size in one dimension
         res = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
                              acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0, noise=self.bo_noise)
-        #x_val, fun = expected_minimum(res)
+        x_val, fun = expected_minimum(res)
         x_val = res.x
         fun = res.fun
         print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x_val, " bounds: ", self.bo_bounds,'\033[0m')
