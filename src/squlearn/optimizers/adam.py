@@ -61,7 +61,7 @@ class Adam(OptimizerBase, SGDMixin):
         if self.log_file is not None:
             f = open(self.log_file, "w")
             if self.skip_fun is not None:
-                output = " %9s  %12s  %12s  %12s  %12s  %12s \n" % (
+                output = " %9s  %13s  %13s  %13s  %13s  %13s \n" % (
                     "Iteration",
                     "f(x)",
                     "Gradient",
@@ -70,7 +70,7 @@ class Adam(OptimizerBase, SGDMixin):
                     "LR",
                 )
             else:
-                output = " %9s  %12s  %12s  %12s  %12s \n" % (
+                output = " %9s  %13s  %13s  %13s  %13s \n" % (
                     "Iteration",
                     "Gradient",
                     "Step",
@@ -204,7 +204,7 @@ class Adam(OptimizerBase, SGDMixin):
         if self.log_file is not None:
             f = open(self.log_file, "a")
             if fval is not None:
-                output = " %9d  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n" % (
+                output = " %9d  %13.7f  %13.7f  %13.7f  %13.7f  %13.7f \n" % (
                     self.iteration,
                     fval,
                     np.linalg.norm(gradient),
@@ -213,7 +213,7 @@ class Adam(OptimizerBase, SGDMixin):
                     self.lr,
                 )
             else:
-                output = " %9d  %12.5f  %12.5f  %12.5f  %12.5f \n" % (
+                output = " %9d  %13.7f  %13.7f  %13.7f  %13.7f \n" % (
                     self.iteration,
                     np.linalg.norm(gradient),
                     dx,
