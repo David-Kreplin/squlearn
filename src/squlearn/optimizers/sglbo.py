@@ -177,7 +177,8 @@ class SGLBO(OptimizerBase, SGDMixin):
                 reg = res.models[-1]
                 x = res.space.transform(x.reshape(1, -1))
                 return reg.predict(x.reshape(1, -1))[0]
-            res2 = minimize(func_suttogate, x0=res.x[0], method='Nelder-Mead', tol=1e-6,bounds=(0.0,0.2))
+            print("Start surrogate optimization with initial point: ", res.x)
+            res2 = minimize(func_suttogate, x0=res.x[0], method='Nelder-Mead', tol=1e-6,bounds=self.bo_bounds)
             print("Minimum of surrogate function: ", res2.x)
             x_val = res2.x
         else:
