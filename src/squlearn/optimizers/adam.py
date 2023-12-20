@@ -127,7 +127,11 @@ class Adam(OptimizerBase, SGDMixin):
             # Calculate the gradient and average it over the last num_average gradients
             # (1 is default: no averaging)
             self.gradient_deque.append(grad(self.x))
-            gradient = np.average(self.gradient_deque, axis=0)
+
+            if self.iteration <= 10:
+                gradient = self.gradient_deque[0]
+            else:
+                gradient = np.average(self.gradient_deque, axis=0)
 
             x_updated = self.step(x=self.x, grad=gradient)
 

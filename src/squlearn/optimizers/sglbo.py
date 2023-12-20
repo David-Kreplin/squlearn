@@ -7,6 +7,7 @@ from skopt import gp_minimize, expected_minimum
 from .approximated_gradients import FiniteDiffGradient
 from .optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
 from scipy.optimize import minimize
+from collections import deque
 
 class SGLBO(OptimizerBase, SGDMixin):
     """sQUlearn's implementation of the SGLBO optimizer
@@ -54,11 +55,13 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.bo_bounds_fac = options.get("bo_bounds_fac", None)
         self.log_file = options.get("log_file", None)
         self.min_surrogate = options.get("min_surrogate", False)
+        self.num_average = options.get("num_average", 1)
 
         self.callback = callback
         self.options = options
         self.x = None
         self.func = None
+        self.gradient_deque = deque(maxlen=self.num_average)
 
         if self.log_file is not None:
             f = open(self.log_file, "w")
@@ -115,7 +118,8 @@ class SGLBO(OptimizerBase, SGDMixin):
         while self.iteration < maxiter:
             # calculate the gradient
             fval = fun(self.x)
-            gradient = grad(self.x)
+            self.gradient_deque.append(grad(self.x))
+            gradient = np.average(self.gradient_deque, axis=0)
 
             # adapt bounds and x0 based on gradient
             if self.bo_bounds is not None and self.bo_x0_points is not None and self.bo_bounds_fac is not None:
