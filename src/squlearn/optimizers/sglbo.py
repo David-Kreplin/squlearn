@@ -6,6 +6,7 @@ from skopt import gp_minimize, expected_minimum
 
 from .approximated_gradients import FiniteDiffGradient
 from .optimizer_base import OptimizerBase, SGDMixin, default_callback, OptimizerResult
+from scipy.optimize import minimize
 
 class SGLBO(OptimizerBase, SGDMixin):
     """sQUlearn's implementation of the SGLBO optimizer
@@ -52,6 +53,7 @@ class SGLBO(OptimizerBase, SGDMixin):
         self.bo_noise = options.get("bo_noise", "gaussian")
         self.bo_bounds_fac = options.get("bo_bounds_fac", None)
         self.log_file = options.get("log_file", None)
+        self.min_surrogate = options.get("min_surrogate", False)
 
         self.callback = callback
         self.options = options
@@ -168,9 +170,18 @@ class SGLBO(OptimizerBase, SGDMixin):
 
         # bayesian optimization to estimate the step size in one dimension
         res = gp_minimize(step_size_cost, self.bo_bounds, n_calls=self.bo_n_calls, acq_func=self.bo_aqc_func,
-                             acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0, noise=self.bo_noise)
-        x_val, fun = expected_minimum(res)
-        x_val = res.x
+                             acq_optimizer=self.bo_aqc_optimizer, x0=self.bo_x0_points, n_jobs=-1, random_state=0, noise=self.bo_noise,n_initial_points=0 )
+
+        if self.min_surrogate:
+            def func_suttogate(x):
+                reg = res.models[-1]
+                x = res.space.transform(x.reshape(1, -1))
+                return reg.predict(x.reshape(1, -1))[0]
+            res2 = minimize(func_suttogate, x0=res.x[0], method='Nelder-Mead', tol=1e-6,bounds=(0.0,0.2))
+            print("Minimum of surrogate function: ", res2.x)
+            x_val = res2.x
+        else:
+            x_val = res.x
         fun = res.fun
         print('\033[91m', "Iteration: ", self.iteration, ": ", "gp_minimize: ", "fval: ", fun, " x: ", x_val, " bounds: ", self.bo_bounds,'\033[0m')
 
