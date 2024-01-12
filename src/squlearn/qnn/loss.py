@@ -411,7 +411,9 @@ class SquaredLoss(LossBase):
             weights = kwargs["weights"]
         else:
             weights = np.ones_like(ground_truth)
-        return np.sum(np.multiply(np.square(value_dict["f"] - ground_truth), weights))
+        value = np.sum(np.multiply(np.square(value_dict["f"] - ground_truth), weights))
+        print("\nSquared loss: ", value)
+        return value
 
     def variance(self, value_dict: dict, **kwargs) -> float:
         r"""Calculates the approximated variance of the squared loss.
@@ -551,6 +553,8 @@ class VarianceLoss(LossBase):
         else:
             alpha = self._alpha
 
+        value = np.sum(value_dict["var"])
+        print("Variance loss: ", value)
         return alpha * np.sum(value_dict["var"])
 
     def variance(self, value_dict: dict, **kwargs) -> float:
