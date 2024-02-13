@@ -824,8 +824,9 @@ class Executor:
         self._shots = num_shots
 
         if num_shots is None:
-            self._logger.info("Set shots to {}".format(num_shots))
             num_shots = 0
+
+        self._logger.info("Set shots to {}".format(num_shots))
 
         # Update shots in backend
         if self._backend is not None:

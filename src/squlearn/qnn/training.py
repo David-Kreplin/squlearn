@@ -9,14 +9,14 @@ from ..optimizers.optimizer_base import OptimizerBase, SGDMixin, IterativeMixin
 from ..util import Executor
 
 
-def get_variance_fac(v: float, a: float, b: float, offset: int = 0):
+def get_variance_fac(v: float, a: float, b: float, c: float=1.0, offset: int = 0):
     r"""
     Function for adjusting the variance regularization along the iterations.
 
     Based on the sigmoid function, see Ref. [1] for details:
 
     .. math::
-        \alpha_{a,b,v}(i) = (1-v)\frac{\exp(a(b-i))}{\exp(a(b-i))+\frac{1}{b}}+v
+        \alpha_{a,b,v,c}(i) = (c-v)\frac{\exp(a(b-i))}{\exp(a(b-i))+\frac{1}{b}}+v
 
     Args:
         v (float): Minimal variance factor value
@@ -34,7 +34,7 @@ def get_variance_fac(v: float, a: float, b: float, offset: int = 0):
 
     def get_variance_fac_func(iteration: int):
         """Function that return the variance parameter for a given iteration."""
-        return (1 - v) * (np.exp(a * (b - offset - iteration))) / (
+        return (c - v) * (np.exp(a * (b - offset - iteration))) / (
             np.exp(a * (b - offset - iteration)) + 1 / b
         ) + v
 
