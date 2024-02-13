@@ -9,7 +9,7 @@ from ..optimizers.optimizer_base import OptimizerBase, SGDMixin, IterativeMixin
 from ..util import Executor
 
 
-def get_variance_fac(v: float, a: float, b: float, c: float=1.0, offset: int = 0):
+def get_variance_fac(v: float, a: float, b: float, c: float = 1.0, offset: int = 0):
     r"""
     Function for adjusting the variance regularization along the iterations.
 

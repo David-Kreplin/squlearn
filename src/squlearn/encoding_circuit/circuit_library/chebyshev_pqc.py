@@ -59,14 +59,36 @@ class ChebyshevPQC(EncodingCircuitBase):
         closed: bool = True,
         entangling_gate: str = "crz",
         alpha: float = 4.0,
+        encoding_mode=0,
     ) -> None:
         super().__init__(num_qubits, num_features)
         self.num_layers = num_layers
         self.closed = closed
         self.entangling_gate = entangling_gate
         self.alpha = alpha
+        self.encoding_mode = encoding_mode
         if self.entangling_gate not in ("crz", "rzz"):
             raise ValueError("Unknown value for entangling_gate: ", entangling_gate)
+
+        if self.encoding_mode == 0:
+
+            def encoding_map(ioff):
+                return ioff % self.num_features
+
+        elif self.encoding_mode == 1:
+
+            def encoding_map(ioff):
+                return int(ioff / (self.num_qubits / self.num_features)) % self.num_features
+
+        elif self.encoding_mode == 2:
+
+            def encoding_map(ioff):
+                return int(ioff / (self.num_qubits)) % self.num_features
+
+        else:
+            raise ValueError("Unknown encoding mode")
+
+        self.encoding_map = encoding_map
 
     @property
     def num_parameters(self) -> int:
@@ -127,10 +149,16 @@ class ChebyshevPQC(EncodingCircuitBase):
         param = super().generate_initial_parameters(seed)
 
         if len(param) > 0:
-            index = self.get_cheb_indices(False)
-            p = np.linspace(0.01, self.alpha, self.num_qubits)
-            for i in index:
-                param[i] = p
+            index = self.get_cheb_indices(True)
+            counter = [0 for _ in range(self.num_features)]
+            for j in range(self.num_qubits):
+                counter[self.encoding_map(j)] += 1
+            p = np.linspace(0.01, self.alpha, int(np.max(counter)))
+            counter = [0 for _ in range(self.num_features)]
+            for j, i in enumerate(index):
+                ifeature = self.encoding_map(j)
+                param[i] = p[counter[ifeature]]
+                counter[ifeature] = (counter[ifeature] + 1) % len(p)
 
         return param
 
@@ -185,6 +213,7 @@ class ChebyshevPQC(EncodingCircuitBase):
         nparam = len(parameters)
         QC = QuantumCircuit(self.num_qubits)
         ioff = 0
+        ioff_feauture = 0
 
         if self.entangling_gate == "crz":
             egate = QC.crz
@@ -201,8 +230,12 @@ class ChebyshevPQC(EncodingCircuitBase):
         for _ in range(self.num_layers):
             # Chebyshev encoding circuit
             for i in range(self.num_qubits):
-                QC.rx(phi_map(parameters[ioff % nparam], features[i % nfeature]), i)
+                QC.rx(
+                    phi_map(parameters[ioff % nparam], features[self.encoding_map(ioff_feauture)]),
+                    i,
+                )
                 ioff = ioff + 1
+                ioff_feauture = ioff_feauture + 1
 
             for i in range(0, self.num_qubits + self.closed - 1, 2):
                 egate(parameters[ioff % nparam], i, (i + 1) % self.num_qubits)
