@@ -14,6 +14,9 @@ from sklearn.gaussian_process.kernels import (
 )
 
 from sklearn.gaussian_process.kernels import Kernel as SklearnKernel
+from sklearn.covariance import EmpiricalCovariance
+
+from scipy.spatial.distance import mahalanobis
 
 from .kernel_matrix_base import KernelMatrixBase
 from ...encoding_circuit.encoding_circuit_base import EncodingCircuitBase
@@ -873,6 +876,8 @@ class ProjectedQuantumKernel(KernelMatrixBase):
             kwargs.pop("num_qubits", None)
             if outer_kernel.lower() == "gaussian":
                 self._outer_kernel = GaussianOuterKernel(**kwargs)
+            elif outer_kernel.lower() == "mahalanobis":
+                self._outer_kernel = MahalanobisKernel(**kwargs)
             else:
                 self._outer_kernel = OuterKernelBase.from_sklearn_kernel(outer_kernel, **kwargs)
         elif isinstance(outer_kernel, OuterKernelBase):
@@ -1044,6 +1049,104 @@ class GaussianOuterKernel(OuterKernelBase):
                 x_result[:, None, :] - y_result,
             )
         )
+
+    def get_params(self, deep: bool = True) -> dict:
+        """
+        Returns hyper-parameters and their values of the Gaussian outer kernel.
+
+        Args:
+            deep (bool): If True, also the parameters for
+                         contained objects are returned (default=True).
+
+        Return:
+            Dictionary with hyper-parameters and values.
+        """
+        params = {"gamma": self.gamma}
+
+        return params
+
+    def set_params(self, **params) -> None:
+        """
+        Sets value of the Gaussian outer kernel hyper-parameters.
+
+        Args:
+            params: Hyper-parameters and their values
+        """
+        valid_params = self.get_params()
+        for key, value in params.items():
+            if key not in valid_params:
+                raise ValueError(
+                    f"Invalid parameter {key!r}. "
+                    f"Valid parameters are {sorted(valid_params)!r}."
+                )
+            try:
+                setattr(self, key, value)
+            except:
+                setattr(self, "_" + key, value)
+
+        return None
+
+
+
+class MahalanobisKernel(OuterKernelBase):
+    r"""
+    Implementation of the Mahalanobis outer kernel:
+
+    .. math::
+        k(x_i, x_j) = \text{exp}\left(-\gamma (QNN(x_i)- QNN(x_j))^\top \mathbf{\Sigma}^{-1} (QNN(x_i)- QNN(x_j))\right)
+
+    with :math:`\mathbf{\Sigma}` being the covariance matrix of the QNN output of the training data.
+
+
+    Args:
+        gamma (float): hyperparameter :math:`\\gamma` of the Gaussian kernel
+    """
+
+    def __init__(self, gamma=1.0):
+        super().__init__()
+        self.gamma = gamma
+        self._num_hyper_parameters = 1
+        self._name_hyper_parameters = ["gamma"]
+
+    def __call__(
+        self, qnn: LowLevelQNNBase, parameters: np.ndarray, x: np.ndarray, y: np.ndarray = None
+    ) -> np.ndarray:
+        """Evaluates the QNN and returns the Gaussian projected kernel
+
+        Args:
+            qnn (QNN): QNN to be evaluated
+            parameters (np.ndarray): parameters of the QNN
+            x (np.ndarray): input data
+            y (np.ndarray): second optional input data
+
+        Returns:
+            np.ndarray: Gaussian projected kernel
+        """
+
+        # Evaluate QNN
+        param = parameters[: qnn.num_parameters]
+        param_op = parameters[qnn.num_parameters :]
+
+        if len(param.shape) == 1 and len(param) == 1:
+            param = float(param)
+        if len(param_op.shape) == 1 and len(param_op) == 1:
+            param_op = float(param_op)
+
+        x_result = qnn.evaluate(x, param, param_op, "f")["f"]
+        if y is not None:
+            y_result = qnn.evaluate(y, param, param_op, "f")["f"]
+        else:
+            y_result = None
+
+        # TODO add regularization
+        covariance_matrix = np.cov(x_result.T)
+        inv_cov = np.linalg.inv(covariance_matrix)
+        kernel_matrix = np.zeros((x_result.shape[0], y_result.shape[0]))
+        for i, x in enumerate(x_result):
+            for j, y in enumerate(y_result):
+                dist = mahalanobis(x, y, inv_cov)
+                kernel_matrix[i, j] = np.exp(-self.gamma * dist ** 2)  # RBF-like kernel
+        return kernel_matrix
 
     def get_params(self, deep: bool = True) -> dict:
         """
